@@ -48,14 +48,10 @@ class server:
             
     def handle_cmd(seft, socket_local:socket.socket):
         message = socket_local.recv(1024).decode()
-        ######################
-        print(f"Recv request from cmd: {message}")
-        ######################
         obj_request = seft.split_message(message)
         method = obj_request[0]
         
         if method == "discover":
-            print("Handle discover")
             #socket_client is socket local which is created from cmd
             #when we call discover from cmd
             host_name = obj_request[1]
@@ -178,12 +174,12 @@ class server:
         socket_client = socket.socket
         for socket_client in socket_client_set:
             if host_name == socket_client.getpeername()[0]:
-                result_str = "Host" + host_name + "\n"
+                result_str = "Host " + host_name + ":\n"
                 fname_set = seft.get_socket_client_file(socket_client)
                 for fname in fname_set:
                     result_str += fname
                     result_str += "\n"
-                print(result_str)
+                # print(result_str)
                 return result_str
         return "Doesn't exist " + host_name
         

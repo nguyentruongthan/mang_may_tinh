@@ -32,7 +32,7 @@ if __name__ == "__main__":
         socket_client.connect((host_name, PORT_CLIENT))
         message = get_message_ping(host_name)
         socket_client.send(message.encode())
-        data = socket_client.recv().decode()
+        data = socket_client.recv(1024).decode()
         if data == "OKE":
             print(f"{host_name} is existing")
     except ConnectionRefusedError as cre:
