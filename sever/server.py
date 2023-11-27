@@ -194,7 +194,7 @@ class server:
         #set of socket client 
         socket_client_set = seft.get_socket_client_set()
         #set of addr of client which has fname
-        set_addr_client_have_fname: set[str] = {}
+        set_addr_client_have_fname: set[str] = ()
         for socket_client in socket_client_set:
             socket_client_file = seft.get_socket_client_file(socket_client)
             if find_element_of_set(fname, socket_client_file):
