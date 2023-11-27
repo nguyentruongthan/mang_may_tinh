@@ -190,34 +190,34 @@ class server:
         file_names.add(fname)
         
     #return set of addr (ip_addr, port_number) of sockets which have file fname
-    def find_fname_in_socket_client_dict(seft, fname: str) -> set[str]:
+    def find_fname_in_socket_client_dict(seft, fname: str) -> list[str]:
         #set of socket client 
         socket_client_set = seft.get_socket_client_set()
         #set of addr of client which has fname
-        set_addr_client_have_fname = set[str]
+        list_addr_client_have_fname = []
         for socket_client in socket_client_set:
             socket_client_file = seft.get_socket_client_file(socket_client)
             if find_element_of_set(fname, socket_client_file):
                 # it shoule be change to only ip 
                 addr = socket_client.getpeername()[0]
-                set_addr_client_have_fname.add(addr)
+                list_addr_client_have_fname.append(addr)
                 
-        return set_addr_client_have_fname
+        return list_addr_client_have_fname
         
     #if not exist -> send "NO"
     #else -> send string
     def fetch(seft, socket_client: socket.socket, fname: str):
-        set_addr_client_have_fname = seft.find_fname_in_socket_client_dict(fname)
+        list_addr_client_have_fname = seft.find_fname_in_socket_client_dict(fname)
         
         # if not exist any client has this file
-        if len(set_addr_client_have_fname) == 0:
+        if len(list_addr_client_have_fname) == 0:
             socket_client.send("NO".encode())
             return
         
         #if exist client has this file
         result = ""
         
-        for addr_client in set_addr_client_have_fname:
+        for addr_client in list_addr_client_have_fname:
             result += addr_client 
             result += "\n"
         
