@@ -42,7 +42,7 @@ class server:
     def cmd(seft):
         while 1:
             s, _ = seft.__socket_local.accept()
-            thread_cmd = threading.Thread(target = seft.handle_cmd, args = (s))
+            thread_cmd = threading.Thread(target = seft.handle_cmd, args = (s,))
             thread_cmd.start()
             thread_cmd.join()
             
@@ -165,10 +165,11 @@ class server:
         socket_client_set = seft.get_socket_client_set()
         clients = ""
         for client in socket_client_set:
-            ip = client.getpeername[0]
-            port = str(client.getpeername[1])
+            ip = client.getpeername()[0]
+            port = str(client.getpeername()[1])
             clients += (ip + port + "\n")
         return clients
+    
     #return string contain file name of host_name
     def discover(seft, host_name: str):
         result_str = ""
@@ -241,11 +242,13 @@ class server:
     
     def run(seft):
         thread_accept = threading.Thread(target = seft.accepting)
+        thread_cmd = threading.Thread(target = seft.cmd)
         
         thread_accept.start()
+        thread_cmd.start()
         
         thread_accept.join()
-        
+        thread_cmd.join()
         
     
     
