@@ -163,8 +163,7 @@ class server:
         clients = ""
         for client in socket_client_set:
             ip = client.getpeername()[0]
-            port = str(client.getpeername()[1])
-            clients += (ip + ":" + port + "\n")
+            clients += (ip + "\n")
         return clients
     
     #return string contain file name of host_name

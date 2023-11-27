@@ -258,24 +258,29 @@ class client:
         return list_clients
         
 
-    def fetch(seft, fname: str):
+    def fetch(seft, socket_local:socket.socket, fname: str):
         #send message to server and get list of clients who has file <fname>
         list_clients = seft.fetch_to_server(fname)
         
         #if no exist any other client has file
         if len(list_clients) == 0:
-            return
+            socket_local.send(f"Network don't have file {fname}".encode())
+            return 
         
         #choose client for fetch file from it
         client_ip = seft.choose_client_for_fetch(list_clients)
         
         #connect to this client
         client_fetch = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_fetch.connect((client_ip, 7777))
+        try:
+            client_fetch.connect((client_ip, 7777))
+        except ConnectionRefusedError:
+            socket_local.send("Time out".encode())
+            exit()
         
         #recv file from this client
         seft.fetch_to_client(client_fetch, fname)
-        
+        socket_local.send("OKE".encode())
         client_fetch.close()
         
         
