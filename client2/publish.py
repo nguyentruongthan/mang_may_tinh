@@ -57,17 +57,19 @@ if __name__ == "__main__":
     lname = sys.argv[1]
     fname = sys.argv[2]
     
-    lname = path_dir + lname
+    
     #check fname is exist
     check_lname(lname)
     #copy lname to client's repository
-    # shutil.copyfile(lname, PATH_RESPONTORY + fname)
+    if os.path.exists(fname):
+        signal = input(f"Do you want to overwrite file {fname} y/n: ")
+        if signal == "n":
+            exit()
     
+    shutil.copyfile(lname, path_dir + fname)
     #connect to local host
     socket_process_client = connect((IP_ADDR, PORT_LOCAL))
-    
-    
-    
+
     #send message to process client
 
     #method:publish\n
