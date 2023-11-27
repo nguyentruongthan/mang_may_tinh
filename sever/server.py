@@ -66,18 +66,21 @@ class server:
             else:
                 seft.handle_request_error()
                 socket_local.send("ERROR".encode()) 
+        elif method == "list_clients":
+            clients = seft.list_clients()
+            socket_local.send(clients.encode())
                 
     #create new thread when server accept new connect from new client
     def handle_client(seft, client:socket.socket):
         while 1:
-            request = client.recv(1024)
-            if not request:
+            try:
+                request = client.recv(1024)
+                seft.handle_request(client, request)
+            except ConnectionResetError:
                 seft.remove_client(client)
                 print(f"Disconnect from {client.getpeername()}")
                 client.close()
                 exit()
-                
-            seft.handle_request(client, request)
         
     
     def remove_client(seft, client:socket.socket):
@@ -143,9 +146,6 @@ class server:
         elif method == "fetch":
             fname = obj_request[1]
             seft.fetch(socket_client, fname)
-        elif method == "list_clients":
-            clients = seft.list_clients()
-            socket_client.send(clients.encode())
         else:
             seft.handle_request_error()
             socket_client.send("ERROR".encode()) 

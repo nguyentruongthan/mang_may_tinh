@@ -1,6 +1,6 @@
 import socket
 import threading
-
+import sys
 
 PORT_CLIENT = 7777
 PORT_LOCAL = 8888
@@ -313,7 +313,7 @@ class client:
 
     
 if __name__ == "__main__":
-    ip_server = socket.gethostbyname(socket.gethostname())
+    ip_server = sys.argv[1]
     path_dir = "C:/Users/than/Desktop/client1/"
     
     obj_client = client(ip_server, path_dir)
