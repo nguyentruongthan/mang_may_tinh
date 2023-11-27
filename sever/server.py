@@ -198,10 +198,8 @@ class server:
         for socket_client in socket_client_set:
             socket_client_file = seft.get_socket_client_file(socket_client)
             if find_element_of_set(fname, socket_client_file):
-                # addr inclue ip and port_number
                 # it shoule be change to only ip 
-                addr = socket_client.getpeername()[0] + ":" + str(socket_client.getpeername()[1])
-                
+                addr = socket_client.getpeername()[0]
                 set_addr_client_have_fname.add(addr)
                 
         return set_addr_client_have_fname

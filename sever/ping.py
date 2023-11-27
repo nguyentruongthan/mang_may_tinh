@@ -35,7 +35,7 @@ if __name__ == "__main__":
         data = socket_client.recv(1024).decode()
         if data == "OKE":
             print(f"{host_name} is existing")
-    except ConnectionRefusedError as cre:
+    except TimeoutError:
         print("Time out")
     
     

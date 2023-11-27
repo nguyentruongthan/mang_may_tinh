@@ -57,6 +57,8 @@ if __name__ == "__main__":
     message_bytes = message_str.encode()
     #send to process client in local computer
     socket_process_client.send(message_bytes)
+    result = socket_process_client.recv(1024).decode()
+    print(result)
     socket_process_client.close()
     
 
