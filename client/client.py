@@ -50,7 +50,7 @@ class client:
         
         if method == "publish":
             fname = obj_request[1]
-            if seft.publish(socket_local, fname) == 1:
+            if seft.publish(fname) == 1:
                 socket_local.send("OKE".encode())
             else:
                 socket_local.send("ERROR".encode())
@@ -291,7 +291,7 @@ class client:
         
     
     
-    def get_message_publish(fname:str) -> str:
+    def get_message_publish(seft, fname:str) -> str:
         message = "method:publish\n"
         message += "fname:"
         message += fname
@@ -299,7 +299,6 @@ class client:
         #message:
         #method:publish\n
         #fname:<fname>
-        
         return message
 
     def publish(seft, fname:str) -> int:

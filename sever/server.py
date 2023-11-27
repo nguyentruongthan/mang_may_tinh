@@ -48,6 +48,9 @@ class server:
             
     def handle_cmd(seft, socket_local:socket.socket):
         message = socket_local.recv(1024).decode()
+        ######################
+        print(f"Recv request from cmd: {message}")
+        ######################
         obj_request = seft.split_message(message)
         method = obj_request[0]
         
@@ -74,7 +77,7 @@ class server:
     def handle_client(seft, client:socket.socket):
         while 1:
             try:
-                request = client.recv(1024)
+                request = client.recv(1024).decode()
                 seft.handle_request(client, request)
             except ConnectionResetError:
                 seft.remove_client(client)
@@ -182,6 +185,7 @@ class server:
                 for fname in fname_set:
                     result_str += fname
                     result_str += "\n"
+                print(result_str)
                 return result_str
         return "Doesn't exist" + host_name
         
