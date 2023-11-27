@@ -9,7 +9,6 @@ PORT_LOCAL = 8888
 
 #path to address of folder respontory
 #TODO
-PATH_RESPONTORY = "C:/Users/than/Desktop/client1/"
 
     
 

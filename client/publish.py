@@ -7,8 +7,7 @@ IP_ADDR: str = ""
 
 #port use to connect with client process in this computer
 PORT_LOCAL = 8888
-#path to address of folder respontory
-PATH_RESPONTORY = "C:/Users/than/Desktop/client1/"
+
     
 #connect to client for send request
 def connect(addr:tuple[str, int]):
@@ -44,7 +43,6 @@ def check_lname(lname: str):
         exit()
     
 if __name__ == "__main__":
-    path_dir = "C:/Users/than/Desktop/client1/"
     #init ip_addr 
     IP_ADDR = socket.gethostbyname(socket.gethostname())
     
@@ -57,6 +55,7 @@ if __name__ == "__main__":
     lname = sys.argv[1]
     fname = sys.argv[2]
     
+    fname = "data\\fname"
     
     #check fname is exist
     check_lname(lname)
@@ -66,7 +65,7 @@ if __name__ == "__main__":
         if signal == "n":
             exit()
     
-    shutil.copyfile(lname, path_dir + fname)
+    shutil.copyfile(lname, fname)
     #connect to local host
     socket_process_client = connect((IP_ADDR, PORT_LOCAL))
 
