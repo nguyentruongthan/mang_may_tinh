@@ -65,16 +65,17 @@ class client:
             print(f"Connected from {add}")
             thread_client = threading.Thread(target = seft.handle_client, args = (s, ))
             thread_client.start()
-    #create new thread when server accept new connect from another client
-    def handle_client(seft, client):
+            
+    #create new thread when client accept new connect from another client
+    def handle_client(seft, client:socket.socket):
         while 1:
-            request = client.recv(1024)
-            if not request:
+            try:
+                request = client.recv(1024)
+                seft.handle_request(client, request.decode())
+            except ConnectionResetError:
                 print(f"Disconnect from {client.getpeername()}")
                 client.close()
                 exit()
-                
-            seft.handle_request(client, request.decode())
             
     
     def split_method(seft, message:str) -> str:

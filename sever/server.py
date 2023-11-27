@@ -75,8 +75,8 @@ class server:
     def handle_client(seft, client:socket.socket):
         while 1:
             try:
-                request = client.recv(1024).decode()
-                seft.handle_request(client, request)
+                request = client.recv(1024)
+                seft.handle_request(client, request.decode())
             except ConnectionResetError:
                 seft.remove_client(client)
                 print(f"Disconnect from {client.getpeername()}")
