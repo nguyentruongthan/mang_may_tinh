@@ -16,7 +16,7 @@ def connect(addr:tuple[str, int]):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.connect(addr)
-        print(f"Connected to {addr}")
+        # print(f"Connected to {addr}")
     except ConnectionRefusedError as cre:
         print("Host doesn't exist")
     except TypeError as Type:
