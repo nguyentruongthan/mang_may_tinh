@@ -29,10 +29,9 @@ class client:
         seft.__socket_client.bind(("", PORT_CLIENT))
         seft.__socket_client.listen(100)
         
-        seft.__socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        local_ip = socket.gethostbyname(socket.gethostname())
-        seft.__socket_client.bind((local_ip, PORT_LOCAL))
-        seft.__socket_client.listen(1)
+        seft.__socket_local = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        seft.__socket_local.bind(("", PORT_LOCAL))
+        seft.__socket_local.listen(1)
         
         seft.run()
         
@@ -40,7 +39,7 @@ class client:
     def cmd(seft):
         while 1:
             s, _ = seft.__socket_local.accept()
-            thread_cmd = threading.Thread(target = seft.handle_cmd, args = (s))
+            thread_cmd = threading.Thread(target = seft.handle_cmd, args = (s, ))
             thread_cmd.start()
             thread_cmd.join()
             
@@ -280,7 +279,14 @@ class client:
         
         
     def run(seft):
-        seft.accepting()
+        thread_accept = threading.Thread(target = seft.accepting)
+        thread_cmd = threading.Thread(target = seft.cmd)
+        
+        thread_accept.start()
+        thread_cmd.start()
+        
+        thread_accept.join()
+        thread_cmd.join()
         
         
     
