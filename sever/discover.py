@@ -20,7 +20,7 @@ def connect(addr:tuple[str, int]):
 
 #convert discover request to standard form   
 def get_message_discover(host_name:str) -> str:
-    message = "method:disvoer\n"
+    message = "method:discover\n"
     message += "hostname:"
     message += host_name
     
@@ -56,7 +56,8 @@ if __name__ == "__main__":
     socket_process_server.send(message_bytes)
     
     #recv size of filenames from server process
-    size = socket_process_server.recv(1024)
+    size = socket_process_server.recv(1024).decode()
+    size = int(size)
     #send signal to server
     socket_process_server.send("OKE".encode())
     #recv fnames from server

@@ -55,17 +55,19 @@ class server:
         method = obj_request[0]
         
         if method == "discover":
+            print("Handle discover")
             #socket_client is socket local which is created from cmd
             #when we call discover from cmd
             host_name = obj_request[1]
             fnames = seft.discover(host_name)
             #send size of fnames
-            socket_local.send(len(fnames).encode())
+            length_fnames = len(fnames)
+            socket_local.send(str(length_fnames).encode())
             #recv signal from local socket 
             signal = socket_local.recv(1024).decode()
             #send fnames to local socket
             if(signal == "OKE"):
-                socket_local.send(fnames)
+                socket_local.send(fnames.encode())
             else:
                 seft.handle_request_error()
                 socket_local.send("ERROR".encode()) 
@@ -159,11 +161,7 @@ class server:
     #return set of file_name whose client have
     def get_socket_client_file(seft, s: socket.socket) -> set[str]:
         return seft.__socket_client_dict[s]
-    
-    def get_host_name(seft, s:socket.socket) -> str:
-        ip = s.getpeername()[0]
-        port = s.getpeername()[1]
-        return ip + ":" + str(port)
+
     def list_clients(seft) -> str:
         socket_client_set = seft.get_socket_client_set()
         clients = ""
@@ -179,7 +177,7 @@ class server:
         socket_client_set = seft.get_socket_client_set()
         socket_client = socket.socket
         for socket_client in socket_client_set:
-            if host_name == seft.get_host_name(socket_client):
+            if host_name == socket_client.getpeername()[0]:
                 result_str = "Host" + host_name + "\n"
                 fname_set = seft.get_socket_client_file(socket_client)
                 for fname in fname_set:
@@ -187,7 +185,7 @@ class server:
                     result_str += "\n"
                 print(result_str)
                 return result_str
-        return "Doesn't exist" + host_name
+        return "Doesn't exist " + host_name
         
     #add fname to set of file_name of client
     def publish(seft, socket_client: socket.socket, fname: str):
