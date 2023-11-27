@@ -1,5 +1,6 @@
 import socket
 import sys
+import os
 
 IP_ADDR: str = ""
 
@@ -33,7 +34,7 @@ def get_message_fetch(fname:str) -> str:
     #fname:<fname>
     
     return message
-    
+
 if __name__ == "__main__":
     
     #init ip_addr 
@@ -43,7 +44,9 @@ if __name__ == "__main__":
     #using args for identify lname and fname
     #TODO
     fname = sys.argv[1]
-    
+    #check file fname is exist in file system
+    if os.path.exists(fname):
+        exit()
     #connect to local host
     socket_process_client = connect((IP_ADDR, PORT_LOCAL))
     
