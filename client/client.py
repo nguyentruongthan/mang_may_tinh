@@ -66,12 +66,10 @@ class client:
     #create new thread when client accept new connect from another client
     def handle_client(seft, socket_client:socket.socket):
         while 1:
-            try:
-                request = socket_client.recv(1024)
-                seft.handle_request(socket_client, request.decode())
-            except ConnectionResetError:
-                print(f"Disconnect from {socket_client.getpeername()[0]}")
-                break
+            request = socket_client.recv(1024)
+            if not request: break
+            else: seft.handle_request(socket_client, request.decode())
+            
         socket_client.close()
             
     
@@ -182,7 +180,9 @@ class client:
         socket_client.send(size.encode())
         #wait for recv "OKE" from another client
         signal = socket_client.recv(1024).decode()
+        print(f"Recv signal: {signal}")
         if signal == "OKE":
+            print("Start send file ...")
             #send data of file to server
             socket_client.sendall(data)
             print(f"Complete send {file_name} to {socket_client.getpeername()[0]}")
@@ -199,6 +199,7 @@ class client:
         client.send("OKE".encode())
         #open file name which received from client
         file = open("data\\" + file_name, "wb")
+        print(f"Open file {file_name}")
         file_bytes = b''
         while size >= 0:
             data = client.recv(1024)    
