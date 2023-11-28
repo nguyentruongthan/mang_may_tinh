@@ -67,7 +67,7 @@ class client:
             
             if method == "publish":
                 fname = obj_request[1]
-                result = seft.publish(socket_local, fname)
+                result = seft.publish(fname)
                 if result == 1:
                     socket_local.send("OKE".encode())
                 else:
