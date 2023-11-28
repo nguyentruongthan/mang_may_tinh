@@ -295,15 +295,11 @@ class client:
         seft.__socket_server.send(message.encode())
         #recv message for addr of host who has file
         str_clients = seft.__socket_server.recv(1024).decode()
-        #convert str_clients to list_clients
-        list_clients = str_clients.split("\n")
-        
-        
-        #if no exist any other client has file
-        if len(list_clients) == 0:
+        if str_clients == "NO":
             socket_local.send(f"Network don't have file {fname}".encode())
             return 
-        
+        #convert str_clients to list_clients
+        list_clients = str_clients.split("\n")        
         #choose client for fetch file from it
         client_ip = seft.choose_client_for_fetch(list_clients)
         

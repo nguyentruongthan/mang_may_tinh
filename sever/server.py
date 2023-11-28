@@ -73,13 +73,15 @@ class server:
                 
     #create new thread when server accept new connect from new client
     def handle_client(seft, client:socket.socket):
-        request = client.recv(1024)
-        if not request:
-            seft.remove_client(client)
-            print(f"Disconnect from {client.getpeername()}")
-            client.close()
-        else:
-            seft.handle_request(client, request.decode())
+        while 1: 
+            try:
+                request = client.recv(1024)
+                seft.handle_request(client, request.decode())
+            except ConnectionResetError:
+                seft.remove_client(client)
+                print(f"Disconnect from {client.getpeername()}")
+                client.close()
+                return
         
         
     
@@ -188,7 +190,7 @@ class server:
     #return set of addr (ip_addr, port_number) of sockets which have file fname
     def find_fname_in_socket_client_dict(seft, fname: str) -> list[str]:
         #set of socket client 
-        socket_client_set = seft.get_socket_client_set()
+        socket_client_set = seft.__socket_client_dict.keys()
         #set of addr of client which has fname
         list_addr_client_have_fname = []
         for socket_client in socket_client_set:
