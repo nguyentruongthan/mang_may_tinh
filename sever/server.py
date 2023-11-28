@@ -15,7 +15,7 @@ class server:
     __socket_local: socket.socket
     
     def __init__(seft):
-    
+        
         seft.__socket_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         seft.__socket_listen.bind(("", PORT_SERVER))
         seft.__socket_listen.listen(100)
@@ -41,10 +41,8 @@ class server:
     
     def cmd(seft):
         while 1:
-            s, _ = seft.__socket_local.accept()
-            thread_cmd = threading.Thread(target = seft.handle_cmd, args = (s,))
-            thread_cmd.start()
-            thread_cmd.join()
+            socket_local, _ = seft.__socket_local.accept()
+            seft.handle_cmd(socket_local)
             
     def handle_cmd(seft, socket_local:socket.socket):
         message = socket_local.recv(1024).decode()
@@ -70,6 +68,8 @@ class server:
         elif method == "list_clients":
             clients = seft.list_clients()
             socket_local.send(clients.encode())
+        else: 
+            socket_local.send("ERROR".encode()) 
                 
     #create new thread when server accept new connect from new client
     def handle_client(seft, client:socket.socket):
@@ -259,7 +259,6 @@ def find_element_of_set(element, set: set) -> bool:
 if __name__ == "__main__":
     
     obj_server = server()
-    
     obj_server.run()
     
     

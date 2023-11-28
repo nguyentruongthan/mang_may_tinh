@@ -26,40 +26,55 @@ class client:
         seft.__socket_client.bind(("", PORT_CLIENT))
         seft.__socket_client.listen(100)
         
+        #init socket_local for handle command from cmd
         seft.__socket_local = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         seft.__socket_local.bind(("", PORT_LOCAL))
         seft.__socket_local.listen(1)
         
-        seft.run()
         
-    
+        
+    #handle request from cmd
     def cmd(seft):
         while 1:
-            s, _ = seft.__socket_local.accept()
-            thread_cmd = threading.Thread(target = seft.handle_cmd, args = (s, ))
-            thread_cmd.start()
-            thread_cmd.join()
+            #accept connect from cmd
+            socket_local, _ = seft.__socket_local.accept()
+            seft.handle_cmd(socket_local)
+            #if finish handle request
+            #-> close connect 
+            socket_local.close()
             
-    def handle_cmd(seft, socket_local:socket.socket):
-        message = socket_local.recv(1024).decode()
-        obj_request = seft.split_message(message)
-        method = obj_request[0]
-        
-        if method == "publish":
-            fname = obj_request[1]
-            if seft.publish(fname) == 1:
-                socket_local.send("OKE".encode())
+    def handle_cmd(seft, socket_local: socket.socket):
+        while 1:
+            message = socket_local.recv(1024)
+            #if disconnect -> close socket_local
+            if not message:
+                break
+            #if socket_local doesn't send request 
+            #-> continue for socket_local send request
+            if len(message) == 0: continue
+            message = message.decode()
+
+            obj_request = seft.split_message(message)
+            method = obj_request[0]
+            
+            if method == "publish":
+                fname = obj_request[1]
+                if seft.publish(fname) == 1:
+                    socket_local.send("OKE".encode())
+                else:
+                    socket_local.send("ERROR".encode())
+            elif method == "fetch":
+                fname = obj_request[1]
+                seft.fetch(socket_local, fname)
             else:
                 socket_local.send("ERROR".encode())
-        elif method == "fetch":
-            fname = obj_request[1]
-            seft.fetch(socket_local, fname)
-        socket_local.close()
+    
     #thread always listen connect from client 
     def accepting(seft):
         while 1:
             s, add = seft.__socket_client.accept()
             print(f"Connected from {add}")
+            #create new thread for handle new client
             thread_client = threading.Thread(target = seft.handle_client, args = (s, ))
             thread_client.start()
             
@@ -67,10 +82,11 @@ class client:
     def handle_client(seft, socket_client:socket.socket):
         while 1:
             request = socket_client.recv(1024)
-            if not request: break
+            if not request: 
+                socket_client.close()
+                break
             else: seft.handle_request(socket_client, request.decode())
-            
-        socket_client.close()
+        
             
     
     def split_method(seft, message:str) -> str:
@@ -110,9 +126,6 @@ class client:
             fname = seft.split_fname(lines[1])
             result_list.append(fname)
         return result_list
-
-    def handle_request_error(seft):
-        print("Request Error")
                 
     def handle_request(seft, socket_client:socket.socket, message:str):
         #messaeg (str): method:<method>\n 
@@ -126,7 +139,6 @@ class client:
         elif method == "ping":
             socket_client.send("OKE".encode())
         else:
-            seft.handle_request_error()
             socket_client.send("ERROR".encode()) 
         socket_client.close()
         
@@ -204,6 +216,7 @@ class client:
         while size >= 0:
             data = client.recv(1024)    
             file_bytes += data
+            size -= 1024
         
         file.write(file_bytes)    
         print(f"Recv file {file_name} completed")
@@ -329,19 +342,5 @@ if __name__ == "__main__":
     ip_server = sys.argv[1]
     
     obj_client = client(ip_server)
-    
-    
-    
-        
-        
-    
-        
-        
-        
-    
-    
-    
-    
-    
-    
+    obj_client.run()
     
