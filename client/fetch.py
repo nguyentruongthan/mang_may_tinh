@@ -15,7 +15,9 @@ PORT_LOCAL = 8888
 def connect(addr:tuple[str, int]):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        s.settimeout(3)
         s.connect(addr)
+        s.gettimeout()
         # print(f"Connected to {addr}")
     except ConnectionRefusedError as cre:
         print("Host doesn't exist")
@@ -57,7 +59,9 @@ if __name__ == "__main__":
     message_bytes = message_str.encode()
     #send to process client in local computer
     socket_process_client.send(message_bytes)
+    socket_process_client.settimeout(3)
     result = socket_process_client.recv(1024).decode()
+    socket_process_client.gettimeout()
     print(result)
     socket_process_client.close()
     

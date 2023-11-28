@@ -31,8 +31,8 @@ class server:
     #thread always listen connect from client 
     def accepting(seft):
         while 1:
-            s, add = seft.__socket_listen.accept()
-            print(f"Connected from {add}")
+            s, _ = seft.__socket_listen.accept()
+            print(f"Connected from {s.getpeername()[0]}")
             seft.__lock.acquire()
             seft.__socket_client_dict[s] = set()
             seft.__lock.release()

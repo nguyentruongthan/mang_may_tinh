@@ -173,15 +173,15 @@ class client:
         
     def send_file(seft, client:socket.socket, file_name:str):
         #open file
-        file = open(file_name, "rb")
+        file = open("data\\" + file_name, "rb")
         
         #read file
         data = file.read()
         
-        size = len(data)
+        size = str(len(data))
         
         #send size of file to client
-        client.send(size)
+        client.send(size.encode())
         #wait for recv "OKE" from another client
         signal = client.recv(1024).decode()
         if signal == "OKE":
