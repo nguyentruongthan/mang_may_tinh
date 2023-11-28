@@ -2,6 +2,7 @@ import socket
 import os
 import shutil
 import sys
+import ntpath
 
 IP_ADDR: str = ""
 
@@ -56,17 +57,18 @@ if __name__ == "__main__":
     lname = sys.argv[1]
     fname = sys.argv[2]
     
+    lname.replace(os.sep, ntpath.sep)
     #check fname is exist
     if not check_lname(lname):
         print(f"File {lname} doesn't exist")
         exit()
     #copy lname to client's repository
-    if os.path.exists("data\\" + fname):
+    if os.path.exists("data/" + fname):
         signal = input(f"Do you want to overwrite file {fname} y/n: ")
         if signal == "n":
             exit()
     
-    shutil.copyfile(lname, "data\\" + fname)
+    shutil.copyfile(lname, "data/" + fname)
     #connect to local host
     socket_process_client = connect((IP_ADDR, PORT_LOCAL))
 
