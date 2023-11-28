@@ -8,18 +8,15 @@ PORT_SERVER = 9999
 
 class client:
     
-    # path for respontory
-    __path_dir: str
     
     #socket server
     __socket_server: socket.socket
     __socket_client: socket.socket
     __socket_local: socket.socket
     
-    def __init__(seft, ip_addr: str, path_dir: str):
+    def __init__(seft, ip_addr: str):
         
 
-        seft.__path_dir = path_dir
         #create socket for IPv4
         seft.__socket_server = seft.connect((ip_addr, PORT_SERVER))
         
@@ -69,13 +66,12 @@ class client:
     #create new thread when client accept new connect from another client
     def handle_client(seft, client:socket.socket):
         while 1:
-            try:
-                request = client.recv(1024)
-                seft.handle_request(client, request.decode())
-            except ConnectionResetError:
-                print(f"Disconnect from {client.getpeername()}")
+            request = client.recv(1024)
+            if not request:
                 client.close()
                 exit()
+            seft.handle_request(client, request.decode())
+
             
     
     def split_method(seft, message:str) -> str:
@@ -197,7 +193,7 @@ class client:
         size = client.recv(1024).decode()
         client.send("OKE".encode())
         #open file name which received from client
-        file = open(seft.__path_dir + file_name, "wb")
+        file = open("data\\" + file_name, "wb")
         file_bytes = b''
         while size >= 0:
             data = client.recv(1024)    
@@ -325,9 +321,8 @@ class client:
     
 if __name__ == "__main__":
     ip_server = sys.argv[1]
-    path_dir = "C:/Users/than/Desktop/client1/"
     
-    obj_client = client(ip_server, path_dir)
+    obj_client = client(ip_server)
     
     
     
