@@ -366,7 +366,7 @@ class client:
         #TODO
         try:
             seft.__socket_server.settimeout(5)
-            result = seft.__socket_server.recv(1024)
+            result = seft.__socket_server.recv(1024).decode()
             if result == "OKE":
                 return 1
                 
