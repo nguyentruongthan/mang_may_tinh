@@ -156,7 +156,7 @@ class server:
         return seft.__socket_client_dict[s]
 
     def list_clients(seft) -> str:
-        socket_client_set = seft.get_socket_client_set()
+        socket_client_set = list(seft.__socket_client_dict.keys())
         clients = ""
         for client in socket_client_set:
             ip = client.getpeername()[0]

@@ -17,7 +17,7 @@ class client:
     def __init__(seft, ip_addr: str):
         
 
-        #create socket for IPv4
+        #create socket for IPv4 and connect to server
         seft.__socket_server = seft.connect((ip_addr, PORT_SERVER))
         
         #listen from other client to send file for fetch
@@ -82,8 +82,8 @@ class client:
             if not request: 
                 socket_client.close()
                 break
-            if len(request) == 0:
-                continue
+            # if len(request) == 0:
+            #     continue
             else: seft.handle_request(socket_client, request.decode())
         
             
@@ -127,6 +127,7 @@ class client:
         return result_list
                 
     def handle_request(seft, socket_client:socket.socket, message:str):
+        if len(message) == 0: return
         #messaeg (str): method:<method>\n 
         #               ...............
         obj_request = seft.split_message(message)
