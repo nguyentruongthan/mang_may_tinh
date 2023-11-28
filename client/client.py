@@ -71,9 +71,8 @@ class client:
                 seft.handle_request(socket_client, request.decode())
             except ConnectionResetError:
                 print(f"Disconnect from {socket_client.getpeername()[0]}")
-                socket_client.close()
-                exit()
-
+                break
+        socket_client.close()
             
     
     def split_method(seft, message:str) -> str:
@@ -169,7 +168,8 @@ class client:
         return s
     
         
-    def send_file(seft, client:socket.socket, file_name:str):
+    def send_file(seft, socket_client:socket.socket, file_name:str):
+        print(f"Send {file_name} to {socket_client.getpeername()[0]}")
         #open file
         file = open("data\\" + file_name, "rb")
         
@@ -179,12 +179,14 @@ class client:
         size = str(len(data))
         
         #send size of file to client
-        client.send(size.encode())
+        socket_client.send(size.encode())
         #wait for recv "OKE" from another client
-        signal = client.recv(1024).decode()
+        signal = socket_client.recv(1024).decode()
         if signal == "OKE":
             #send data of file to server
-            client.sendall(data)
+            socket_client.sendall(data)
+            print(f"Complete send {file_name} to {socket_client.getpeername()[0]}")
+        
         file.close()
     
     def recv_file(seft, client:socket.socket, file_name:str):
@@ -193,6 +195,7 @@ class client:
         
         #recv size of file
         size = int(client.recv(1024).decode())
+        print(f"Size of file {file_name} is {size}")
         client.send("OKE".encode())
         #open file name which received from client
         file = open("data\\" + file_name, "wb")
@@ -202,7 +205,7 @@ class client:
             file_bytes += data
         
         file.write(file_bytes)    
-            
+        print(f"Recv file {file_name} completed")
         file.close()
         client.close()
     
