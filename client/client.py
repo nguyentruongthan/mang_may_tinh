@@ -85,6 +85,8 @@ class client:
             if not request: 
                 socket_client.close()
                 break
+            if len(request) == 0:
+                continue
             else: seft.handle_request(socket_client, request.decode())
         
             
@@ -170,10 +172,15 @@ class client:
             print("IP syntax error")
             exit()
         try:
+            s.settimeout(3)
             s.connect(addr)
+            s.gettimeout()
             print(f"Connected to {addr}")
         except ConnectionRefusedError:
             print(f"Don't exist host {addr}")
+            exit()
+        except socket.timeout:
+            print("Time Out")
             exit()
         return s
     
