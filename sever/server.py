@@ -151,9 +151,6 @@ class server:
             seft.handle_request_error()
             socket_client.send("ERROR".encode()) 
         
-    def get_socket_client_set(seft) -> set[socket.socket]:
-        return set(seft.__socket_client_dict.keys())
-        
     #return set of file_name whose client have
     def get_socket_client_file(seft, s: socket.socket) -> set[str]:
         return seft.__socket_client_dict[s]
@@ -167,11 +164,11 @@ class server:
         return clients
     
     #return string contain file name of host_name
-    def discover(seft, host_name: str):
+    def discover(seft, host_name: str) -> str:
         result_str = ""
-        socket_client_set = seft.get_socket_client_set()
+        socket_client_list = list(seft.__socket_client_dict.keys())
         socket_client = socket.socket
-        for socket_client in socket_client_set:
+        for socket_client in socket_client_list:
             if host_name == socket_client.getpeername()[0]:
                 result_str = "Host " + host_name + ":\n"
                 fname_set = seft.get_socket_client_file(socket_client)

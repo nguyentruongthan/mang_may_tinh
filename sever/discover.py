@@ -48,13 +48,10 @@ if __name__ == "__main__":
     
     #send message to process server
 
-    #method:discover\n
-    #hostname:<host_name>
-    message_str = get_message_discover(host_name)
-    message_bytes = message_str.encode()
+    #message = method:discover\nhostname:<host_name>
+    message = get_message_discover(host_name)
     #send to process client in local computer
-    socket_process_server.send(message_bytes)
-    
+    socket_process_server.send(message.encode())
     #recv size of filenames from server process
     size = socket_process_server.recv(1024).decode()
     size = int(size)

@@ -30,16 +30,11 @@ if __name__ == "__main__":
     
     #connect to local host
     socket_process_server = connect((IP_ADDR, PORT_LOCAL))
-    
     #send message to process server
-
-    #method:discover\n
-    #hostname:<host_name>
-    message_str = "method:list_clients\n"
-    message_bytes = message_str.encode()
+    message = "method:list_clients"
     #send to process client in local computer
-    socket_process_server.send(message_bytes)
-    
+    socket_process_server.send(message.encode())
+    #recv list of clients who connected to server from server
     clients = socket_process_server.recv(1024).decode()
     print(clients)
     

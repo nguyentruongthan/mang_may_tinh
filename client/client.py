@@ -59,10 +59,7 @@ class client:
             
             if method == "publish":
                 fname = obj_request[1]
-                if seft.publish(fname) == 1:
-                    socket_local.send("OKE".encode())
-                else:
-                    socket_local.send("ERROR".encode())
+                seft.publish(socket_local, fname)
             elif method == "fetch":
                 fname = obj_request[1]
                 seft.fetch(socket_local, fname)
@@ -282,7 +279,15 @@ class client:
 
     def fetch(seft, socket_local:socket.socket, fname: str):
         #send message to server and get list of clients who has file <fname>
-        list_clients = seft.fetch_to_server(fname)
+        #message = method:fetch\nfname:<fname>
+        message = seft.message_for_fetch(fname)
+        #send message to server
+        seft.__socket_server.send(message.encode())
+        #recv message for addr of host who has file
+        str_clients = seft.__socket_server.recv(1024).decode()
+        #convert str_clients to list_clients
+        list_clients = str_clients.split("\n")
+        
         
         #if no exist any other client has file
         if len(list_clients) == 0:
@@ -292,16 +297,22 @@ class client:
         #choose client for fetch file from it
         client_ip = seft.choose_client_for_fetch(list_clients)
         
+        #send message to client and recv file
         #connect to this client
         client_fetch = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            client_fetch.connect((client_ip, 7777))
+            client_fetch.connect((client_ip, PORT_CLIENT))
         except ConnectionRefusedError:
             socket_local.send("Time out".encode())
             exit()
         
         #recv file from this client
-        seft.fetch_to_client(client_fetch, fname)
+        #send message to client
+        client_fetch.send(message.encode())
+        
+        #receive file from client who has file <fname>
+        seft.recv_file(client_fetch, fname)
+        
         socket_local.send("OKE".encode())
         client_fetch.close()
         
@@ -329,16 +340,18 @@ class client:
         #fname:<fname>
         return message
 
-    def publish(seft, fname:str) -> int:
+    def publish(seft, socket_local:socket.socket, fname:str) -> bool:
+        #method:publish\nfname:<fname>
         message = seft.get_message_publish(fname)
+        #send message to process server
         seft.__socket_server.send(message.encode())
         #wait for server send response
         #TODO
         try:
             seft.__socket_server.settimeout(5)
-            signal = seft.__socket_server.recv(1024).decode()
-            if signal == "OKE":
-                return 1
+            result = seft.__socket_server.recv(1024)
+            socket_local.send(result)
+                
         except socket.timeout:
             print("Publish method didn't receive response from server!")
             

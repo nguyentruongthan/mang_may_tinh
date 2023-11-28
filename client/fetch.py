@@ -52,14 +52,13 @@ if __name__ == "__main__":
     #connect to local host
     socket_process_client = connect((IP_ADDR, PORT_LOCAL))
     
-    #send message to server
+    #send message to process client
 
     #method:fetch\n
     #fname:<fname>
-    message_str = get_message_fetch(fname)
-    message_bytes = message_str.encode()
+    message = get_message_fetch(fname)
     #send to process client in local computer
-    socket_process_client.send(message_bytes)
+    socket_process_client.send(message.encode())
     socket_process_client.settimeout(3)
     result = socket_process_client.recv(1024).decode()
     socket_process_client.gettimeout()

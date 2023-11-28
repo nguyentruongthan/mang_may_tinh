@@ -36,13 +36,12 @@ def get_message_publish(fname:str) -> str:
     return message
 
 #check file lname is exist in file system
-def check_lname(lname: str):
+def check_lname(lname: str) -> bool:
     #check for lname exist in folder of clinet
     is_lname_exist = os.path.exists(lname)
     #if file not exist
-    if not is_lname_exist:
-        print(f"File {lname} doesn't exist")
-        exit()
+    return is_lname_exist
+        
     
 if __name__ == "__main__":
     #init ip_addr 
@@ -58,7 +57,9 @@ if __name__ == "__main__":
     fname = sys.argv[2]
     
     #check fname is exist
-    check_lname(lname)
+    if not check_lname(lname):
+        print(f"File {lname} doesn't exist")
+        exit()
     #copy lname to client's repository
     if os.path.exists("data\\" + fname):
         signal = input(f"Do you want to overwrite file {fname} y/n: ")
@@ -74,9 +75,8 @@ if __name__ == "__main__":
     #method:publish\n
     #fname:<fname>
     message_str = get_message_publish(fname)
-    message_bytes = message_str.encode()
     #send to process client in local computer
-    socket_process_client.send(message_bytes)
+    socket_process_client.send(message_str.encode())
     socket_process_client.settimeout(3)
     result = socket_process_client.recv(1024).decode()
     socket_process_client.gettimeout()
