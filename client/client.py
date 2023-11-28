@@ -1,6 +1,7 @@
 import socket
 import threading
 import sys
+import os 
 
 PORT_CLIENT = 7777
 PORT_LOCAL = 8888
@@ -20,6 +21,13 @@ class client:
         #create socket for IPv4 and connect to server
         seft.__socket_server = seft.connect((ip_addr, PORT_SERVER))
         
+        #publish all file in local respostory to server
+        list_files = os.listdir("data")
+        for file in list_files:
+            result = seft.publish(file)
+            if result == 0:
+                print("Error when publish file init")
+                exit()
         #listen from other client to send file for fetch
         #or from local when we use publish and fetch method in cmd
         seft.__socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -59,7 +67,11 @@ class client:
             
             if method == "publish":
                 fname = obj_request[1]
-                seft.publish(socket_local, fname)
+                result = seft.publish(socket_local, fname)
+                if result == 1:
+                    socket_local.send("OKE".encode())
+                else:
+                    socket_local.send("ERROR".encode())
             elif method == "fetch":
                 fname = obj_request[1]
                 seft.fetch(socket_local, fname)
@@ -311,11 +323,18 @@ class client:
         #receive file from client who has file <fname>
         seft.recv_file(client_fetch, fname)
         
-        socket_local.send("OKE".encode())
+        #send request publish 
+        result_publish = seft.publish(fname)
+        if result_publish == 1:
+            socket_local.send("OKE".encode())
+        else:
+            socket_local.send("ERROR".encode())
+        
         client_fetch.close()
         
         
     def run(seft):
+        
         thread_accept = threading.Thread(target = seft.accepting)
         thread_cmd = threading.Thread(target = seft.cmd)
         
@@ -338,7 +357,7 @@ class client:
         #fname:<fname>
         return message
 
-    def publish(seft, socket_local:socket.socket, fname:str) -> bool:
+    def publish(seft, fname:str) -> bool:
         #method:publish\nfname:<fname>
         message = seft.get_message_publish(fname)
         #send message to process server
@@ -348,11 +367,12 @@ class client:
         try:
             seft.__socket_server.settimeout(5)
             result = seft.__socket_server.recv(1024)
-            socket_local.send(result)
+            if result == "OKE":
+                return 1
                 
         except socket.timeout:
             print("Publish method didn't receive response from server!")
-            
+            return 0
         return 0
 
     
