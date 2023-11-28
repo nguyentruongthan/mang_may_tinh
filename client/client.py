@@ -77,14 +77,11 @@ class client:
             
     #create new thread when client accept new connect from another client
     def handle_client(seft, socket_client:socket.socket):
-        while 1:
             request = socket_client.recv(1024)
             if not request: 
                 socket_client.close()
-                break
-            # if len(request) == 0:
-            #     continue
-            else: seft.handle_request(socket_client, request.decode())
+            else: 
+                seft.handle_request(socket_client, request.decode())
         
             
     

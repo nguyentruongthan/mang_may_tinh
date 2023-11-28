@@ -73,15 +73,14 @@ class server:
                 
     #create new thread when server accept new connect from new client
     def handle_client(seft, client:socket.socket):
-        while 1:
-            try:
-                request = client.recv(1024)
-                seft.handle_request(client, request.decode())
-            except ConnectionResetError:
-                seft.remove_client(client)
-                print(f"Disconnect from {client.getpeername()}")
-                client.close()
-                exit()
+        request = client.recv(1024)
+        if not request:
+            seft.remove_client(client)
+            print(f"Disconnect from {client.getpeername()}")
+            client.close()
+        else:
+            seft.handle_request(client, request.decode())
+        
         
     
     def remove_client(seft, client:socket.socket):
