@@ -1,6 +1,7 @@
 import socket
 import threading
 import os
+import shutil
 
 PORT_CLIENT = 7777
 PORT_LOCAL = 8888
@@ -77,16 +78,12 @@ class server:
                 
     #create new thread when server accept new connect from new client
     def handle_client(seft, client:socket.socket):
-        while 1: 
-            try:
-                request = client.recv(1024)
-                seft.handle_request(client, request.decode())
-            except ConnectionResetError:
-                seft.remove_client(client)
-                print(f"Disconnect from {client.getpeername()}")
-                client.close()
-                return
-        
+        request = client.recv(1024)
+        if not request:
+            client.close()
+        else:
+            seft.handle_request(client, request.decode())
+                
         
     
     def remove_client(seft, client:socket.socket):
@@ -175,7 +172,6 @@ class server:
         socket_client = socket.socket
         for socket_client in socket_client_list:
             if host_name == socket_client.getpeername()[0]:
-                result_str = "Host " + host_name + ":\n"
                 fname_set = seft.get_socket_client_file(socket_client)
                 for fname in fname_set:
                     result_str += fname
@@ -205,10 +201,23 @@ class server:
                 list_addr_client_have_fname.append(addr)
                 
         return list_addr_client_have_fname
-        
+    
+    def check_clients_live(seft):
+        list_clients = list(seft.__socket_client_dict.keys())
+        for client in list_clients:
+            socket_check_live = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                socket_check_live.settimeout(1)
+                socket_check_live.connect((client.getpeername()[0], PORT_CLIENT))
+                socket_check_live.close()
+            except socket.timeout:
+                seft.remove_client(client)
+            
     #if not exist -> send "NO"
     #else -> send string
     def fetch(seft, socket_client: socket.socket, fname: str):
+        seft.check_clients_live()
+        
         list_addr_client_have_fname = seft.find_fname_in_socket_client_dict(fname)
         
         # if not exist any client has this file
@@ -261,6 +270,10 @@ def find_element_of_set(element, set: set) -> bool:
 if __name__ == "__main__":
     if not os.path.exists('data'):
         os.mkdir('data')
+    else:
+        shutil.rmtree('data', ignore_errors=True)
+        os.mkdir('data')
+
     obj_server = server()
     obj_server.run()
     
