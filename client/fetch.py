@@ -44,8 +44,7 @@ if __name__ == "__main__":
     
     #using args for identify lname and fname
     #TODO
-    number_of_fname = len(sys.argv) - 1
-    if number_of_fname < 1:
+    if len(sys.argv) < 2:
         print("Syntax Error: Less than one argument") 
     fnames = sys.argv[1:]
     for fname in fnames:
