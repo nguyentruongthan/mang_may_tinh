@@ -55,7 +55,7 @@ def fetch_func(file_names) -> str:
         message = get_message_fetch(fname)
         #send to process client in local computer
         socket_process_client.send(message.encode())
-
+        socket_process_client.settimeout(None)
         result = socket_process_client.recv(1024).decode()
         print(result)
         result_total += f"{result}\n"

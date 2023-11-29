@@ -214,6 +214,15 @@ class client:
         if signal == "OKE":
             print("Start send file ...")
             #send data of file to server
+            size = len(data)
+            count:int = 0
+            while size > 0:
+                if size < 4096:
+                    socket_client.send(data[4096*count:])
+                else:
+                    socket_client.send(data[4096*count: 4096*(count + 1)])
+                count += 1
+                size -= 4096
             socket_client.sendall(data)
             print(f"Complete send {file_name} to {socket_client.getpeername()[0]}")
         
@@ -227,14 +236,18 @@ class client:
         size = int(client.recv(1024).decode())
         print(f"Size of file {file_name} is {size}")
         client.send("OKE".encode())
-        #open file name which received from client
-        file = open("data\\" + file_name, "wb")
-        print(f"Open file {file_name}")
+        
+        #recv data 
         file_bytes = b''
         while size >= 0:
             data = client.recv(1024)    
             file_bytes += data
             size -= 1024
+        print(f"Size of file {file_name} after recv is {len(file_name)}")
+        
+        #open file name which received from client
+        file = open("data\\" + file_name, "wb")
+        print(f"Open file {file_name}")
         
         file.write(file_bytes)    
         print(f"Recv file {file_name} completed")

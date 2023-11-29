@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import filedialog as fd
 import os
-import subprocess
 import time
 from publish import *
 from fetch import *
