@@ -9,14 +9,15 @@ PORT_SERVER = 9999
 
 class client:
     
-    
+    __ip_server: str
     #socket server
     __socket_server: socket.socket
     __socket_client: socket.socket
     __socket_local: socket.socket
     
     def __init__(seft, ip_addr: str):
-                
+        
+        seft.__ip_server = ip_addr     
         #publish all file in local respostory to server
         list_files = os.listdir("data")
         for file in list_files:
@@ -284,7 +285,7 @@ class client:
         
 
     def fetch(seft, socket_local:socket.socket, fname: str):
-        seft.__socket_server.connect((ip_server, PORT_SERVER))
+        seft.__socket_server = seft.connect(seft.__ip_server, PORT_SERVER)
         #send message to server and get list of clients who has file <fname>
         #message = method:fetch\nfname:<fname>
         message = seft.message_for_fetch(fname)
@@ -353,7 +354,7 @@ class client:
 
     def publish(seft, fname:str) -> bool:
         #connect to server
-        seft.__socket_server = seft.connect((ip_server, PORT_SERVER))
+        seft.__socket_server = seft.connect((seft.__ip_server, PORT_SERVER))
         #method:publish\nfname:<fname>
         message = seft.get_message_publish(fname)
         #send message to process server
