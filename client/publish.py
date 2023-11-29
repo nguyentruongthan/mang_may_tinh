@@ -4,12 +4,6 @@ import shutil
 import sys
 import ntpath
 
-
-
-#port use to connect with client process in this computer
-
-
-    
 #connect to client for send request
 def connect(addr:tuple[str, int]):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,15 +1,6 @@
 import socket
 import sys
 import os
-
-
-
-#port use to connect with client process in this computer
-PORT_LOCAL = 8888
-
-#path to address of folder respontory
-#TODO
-
     
 
 #connect to client for send request
@@ -41,14 +32,14 @@ def get_message_fetch(fname:str) -> str:
 def fetch_func(file_names) -> str:
     IP_ADDR = socket.gethostbyname(socket.gethostname())
     PORT_LOCAL = 8888
+    
     if len(file_names) < 1:
         result = "Syntax Error: Less than one argument"
         print(result)
         return result
     
     result_total = ""
-    fnames = sys.argv[1:]
-    for fname in fnames:
+    for fname in file_names:
         #check file fname is exist in file system
         if os.path.exists("data\\" + fname):
             print(f"File {fname} is existing")
@@ -70,6 +61,7 @@ def fetch_func(file_names) -> str:
         result_total += f"{result}\n"
         socket_process_client.close()
     return result_total
+
 if __name__ == "__main__":
     
     #init ip_addr 

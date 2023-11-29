@@ -38,7 +38,7 @@ def fetch():
     global state
     state.destroy()
     
-    file_names = fname.get()
+    file_names = fname.get().split(" ")
     result = fetch_func(file_names)
     
     state = Label(root, text = result)

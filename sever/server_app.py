@@ -17,7 +17,7 @@ def discover():
     ip_discover = host_name.get()
     state_ping.destroy()
     discover_func(ip_discover)
-    time.sleep(1)
+    time.sleep(0.5)
     show()
 
 
@@ -36,7 +36,7 @@ def ping():
     state_ping.destroy()
     ip_ping = host_name.get()
     result = ping_func(ip_ping)
-    time.sleep(1)
+    time.sleep(0.5)
     state_ping = Label(root, text = result)
     state_ping.grid(row = 4, column=1)
 
@@ -46,12 +46,14 @@ def ping():
 def show():
     global ip_discover
     list_box.delete(0, END)
+    clients = read()
     ip_clients = list(clients.keys())
     for ip_client in ip_clients:
         list_box.insert(END, ip_client[:-4])
         if ip_client[:-4] == ip_discover:
             file_names = list(clients[ip_client])
             for file_name in file_names:
+                if file_name == "": continue
                 file_name = "              " + file_name
                 list_box.insert(END, file_name)
 
