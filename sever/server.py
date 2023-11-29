@@ -173,13 +173,14 @@ class server:
             
             seft.publish(ip_client, fname)
             socket_client.send("OKE".encode())
-            
         elif method == "fetch":
             fname = obj_request[1]
             seft.fetch(socket_client, fname)
         else:
             seft.handle_request_error()
             socket_client.send("ERROR".encode()) 
+        
+        socket_client.close()
         
 
     def list_clients(seft) -> str:

@@ -51,7 +51,7 @@ if __name__ == "__main__":
         #check file fname is exist in file system
         if os.path.exists("data\\" + fname):
             print(f"File {fname} is existing")
-            exit()
+            continue
         #connect to local host
         socket_process_client = connect((IP_ADDR, PORT_LOCAL))
         
