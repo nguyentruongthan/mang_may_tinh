@@ -16,11 +16,7 @@ class client:
     __socket_local: socket.socket
     
     def __init__(seft, ip_addr: str):
-        
-
-        #create socket for IPv4 and connect to server
-        seft.__socket_server = seft.connect((ip_addr, PORT_SERVER))
-        
+                
         #publish all file in local respostory to server
         list_files = os.listdir("data")
         for file in list_files:
@@ -288,6 +284,7 @@ class client:
         
 
     def fetch(seft, socket_local:socket.socket, fname: str):
+        seft.__socket_server.connect((ip_server, PORT_SERVER))
         #send message to server and get list of clients who has file <fname>
         #message = method:fetch\nfname:<fname>
         message = seft.message_for_fetch(fname)
@@ -329,6 +326,7 @@ class client:
         client_fetch.close()
         
         
+        
     def run(seft):
         
         thread_accept = threading.Thread(target = seft.accepting)
@@ -354,6 +352,8 @@ class client:
         return message
 
     def publish(seft, fname:str) -> bool:
+        #connect to server
+        seft.__socket_server = seft.connect((ip_server, PORT_SERVER))
         #method:publish\nfname:<fname>
         message = seft.get_message_publish(fname)
         #send message to process server
@@ -364,11 +364,14 @@ class client:
             seft.__socket_server.settimeout(5)
             result = seft.__socket_server.recv(1024).decode()
             if result == "OKE":
+                seft.__socket_server.close()
                 return 1
                 
         except socket.timeout:
             print("Publish method didn't receive response from server!")
+            seft.__socket_server.close()
             return 0
+        seft.__socket_server.close()
         return 0
 
     
