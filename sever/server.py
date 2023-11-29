@@ -37,7 +37,7 @@ class server:
             seft.__lock.acquire()
             seft.__socket_client_dict[s] = set()
             #create file for client
-            file = open("data\\" + s.getpeername()[0] + ".txt", 'w')
+            file = open("data\\" + s.getpeername()[0] + ".txt", 'x')
             file.close()
             seft.__lock.release()
             thread_client = threading.Thread(target = seft.handle_client, args = (s,))
@@ -186,9 +186,6 @@ class server:
         
     #add fname to set of file_name of client
     def publish(seft, socket_client: socket.socket, fname: str):
-        file = open('data\\'+socket_client.getpeername()[0] + ".txt", 'a')
-        file.write(fname + "\n")
-        file.close()
         #get set of file_names of client
         file_names = seft.__socket_client_dict[socket_client]
         #add file_name into this set

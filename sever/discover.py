@@ -59,11 +59,18 @@ if __name__ == "__main__":
     socket_process_server.send("OKE".encode())
     #recv fnames from server
     fnames = ""
-    while size >= 0:
+    while size > 0:
         fnames += socket_process_server.recv(1024).decode()
         size -= 1024
+    if fnames == "":
+        fnames = "Empty"
     
     print(fnames)
+    
+    file = open("data\\" + host_name + ".txt", 'w')
+    file.write(fnames)
+    file.close()
+    
     socket_process_server.close()
     
 
