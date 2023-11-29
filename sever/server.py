@@ -12,7 +12,7 @@ class server:
     __socket_listen: socket.socket
     #dict contain socket of client and its file name 
     #when client publish file name to server
-    __socket_client_dict: dict[socket.socket, set[str]]
+    __ip_client_dict: dict[str, set[str]]
     
     __socket_local: socket.socket
     
@@ -26,7 +26,7 @@ class server:
         seft.__socket_local.bind(("", PORT_LOCAL))
         seft.__socket_local.listen(1)
         
-        seft.__socket_client_dict = {}
+        seft.__ip_client_dict = {}
         seft.__lock = threading.Lock()
         
         
@@ -34,12 +34,17 @@ class server:
     def accepting(seft):
         while 1:
             s, _ = seft.__socket_listen.accept()
-            print(f"Connected from {s.getpeername()[0]}")
+            ip_addr = s.getpeername()[0]
+            print(f"Connected from {ip_addr}")
             seft.__lock.acquire()
-            seft.__socket_client_dict[s] = set()
+            #init new element for dict
+            if seft.__ip_client_dict.get(ip_addr) is None:
+                seft.__ip_client_dict[ip_addr] = set()
             #create file for client
-            file = open("data\\" + s.getpeername()[0] + ".txt", 'x')
-            file.close()
+            path = "data\\" + s.getpeername()[0] + ".txt"
+            if not os.path.exists(path):
+                file = open(path , 'x')
+                file.close()
             seft.__lock.release()
             thread_client = threading.Thread(target = seft.handle_client, args = (s,))
             thread_client.start()
@@ -86,9 +91,9 @@ class server:
                 
         
     
-    def remove_client(seft, client:socket.socket):
+    def remove_client(seft, ip_client:str):
         seft.__lock.acquire()
-        seft.__socket_client_dict.pop(client)
+        seft.__ip_client_dict.pop(ip_client)
         seft.__lock.release()
                            
     
@@ -143,9 +148,13 @@ class server:
         method = obj_request[0]
         
         if method == "publish":
+            ip_client = socket_client.getpeername()[0]
+
             fname = obj_request[1]
-            seft.publish(socket_client, fname)
+            
+            seft.publish(ip_client, fname)
             socket_client.send("OKE".encode())
+            
         elif method == "fetch":
             fname = obj_request[1]
             seft.fetch(socket_client, fname)
@@ -153,65 +162,60 @@ class server:
             seft.handle_request_error()
             socket_client.send("ERROR".encode()) 
         
-    #return set of file_name whose client have
-    def get_socket_client_file(seft, s: socket.socket) -> set[str]:
-        return seft.__socket_client_dict[s]
 
     def list_clients(seft) -> str:
-        socket_client_set = list(seft.__socket_client_dict.keys())
-        clients = ""
-        for client in socket_client_set:
-            ip = client.getpeername()[0]
-            clients += (ip + "\n")
-        return clients
+        ip_client_list = list(seft.__ip_client_dict.keys())
+        ip_clients = ""
+        for ip_client in ip_client_list:
+            ip_clients += (ip_client + "\n")
+        return ip_clients
     
     #return string contain file name of host_name
     def discover(seft, host_name: str) -> str:
         result_str = ""
-        socket_client_list = list(seft.__socket_client_dict.keys())
-        socket_client = socket.socket
-        for socket_client in socket_client_list:
-            if host_name == socket_client.getpeername()[0]:
-                fname_set = seft.get_socket_client_file(socket_client)
+        #get list of ip_addr of who connected to server
+        ip_client_list = list(seft.__ip_client_dict.keys())
+        
+        for ip_client in ip_client_list:
+            if host_name == ip_client:
+                fname_set = seft.__ip_client_dict[ip_client]
                 for fname in fname_set:
                     result_str += fname
                     result_str += "\n"
-                # print(result_str)
                 return result_str
         return "Doesn't exist " + host_name
         
     #add fname to set of file_name of client
-    def publish(seft, socket_client: socket.socket, fname: str):
+    def publish(seft, ip_client: str, fname: str):
         #get set of file_names of client
-        file_names = seft.__socket_client_dict[socket_client]
+        seft.__ip_client_dict[ip_client].add(fname)
         #add file_name into this set
-        file_names.add(fname)
+        # file_names.add(fname)
         
     #return set of addr (ip_addr, port_number) of sockets which have file fname
     def find_fname_in_socket_client_dict(seft, fname: str) -> list[str]:
         #set of socket client 
-        socket_client_set = seft.__socket_client_dict.keys()
+        ip_client_list = list(seft.__ip_client_dict.keys())
         #set of addr of client which has fname
         list_addr_client_have_fname = []
-        for socket_client in socket_client_set:
-            socket_client_file = seft.get_socket_client_file(socket_client)
-            if find_element_of_set(fname, socket_client_file):
+        for ip_client in ip_client_list:
+            client_files = seft.__ip_client_dict[ip_client]
+            if find_element_of_set(fname, client_files):
                 # it shoule be change to only ip 
-                addr = socket_client.getpeername()[0]
-                list_addr_client_have_fname.append(addr)
+                list_addr_client_have_fname.append(ip_client)
                 
         return list_addr_client_have_fname
     
     def check_clients_live(seft):
-        list_clients = list(seft.__socket_client_dict.keys())
-        for client in list_clients:
+        ip_clients = list(seft.__ip_client_dict.keys())
+        for ip_client in ip_clients:
             socket_check_live = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 socket_check_live.settimeout(1)
-                socket_check_live.connect((client.getpeername()[0], PORT_CLIENT))
+                socket_check_live.connect((ip_client, PORT_CLIENT))
                 socket_check_live.close()
             except socket.timeout:
-                seft.remove_client(client)
+                seft.remove_client(ip_client)
             
     #if not exist -> send "NO"
     #else -> send string
@@ -233,18 +237,7 @@ class server:
             result += "\n"
         
         #result is: <client>\n<client>\n...<client>\n
-        socket_client.send(result.encode())
-    
-    def get_socket_client_from_host_name(seft, addr: str) -> socket.socket:
-        ip_port = addr.split(":")
-        ip = ip_port[0]
-        port = ip_port[1]
-        
-        for s in seft.__socket_client_dict:
-            if s.getpeername() == (ip, port):
-                return s
-        return None
-                
+        socket_client.send(result.encode())           
     
     def run(seft):
         thread_accept = threading.Thread(target = seft.accepting)

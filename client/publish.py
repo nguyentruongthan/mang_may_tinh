@@ -51,8 +51,8 @@ if __name__ == "__main__":
     
     #using args for identify lname and fname
     #TODO
-    if(len(sys.argv) > 3):
-        print("Syntax error: more than 2 argument for publish funcion")
+    if(len(sys.argv) != 3):
+        print("Syntax error: <lname> <fname>")
         exit()
     lname = sys.argv[1]
     fname = sys.argv[2]
