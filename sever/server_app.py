@@ -3,30 +3,45 @@ from tkinter import filedialog as fd
 from data_base_server import *
 import subprocess
 import time
+from discover import *
+from ping import *
+
 if not os.path.exists('data'):
     os.mkdir('data')
 
 clients = read()
 ip_discover: str = ""
 def discover():
+    global state_ping
     global ip_discover
     ip_discover = host_name.get()
-    subprocess.run(f"discover.bat {ip_discover}", wait = True)
-    
+    state_ping.destroy()
+    discover_func(ip_discover)
+    time.sleep(1)
     show()
 
 
 def list_clients():
+    global state_ping
     global ip_discover
     global clients
+    state_ping.destroy()
     ip_discover = ""
     clients = read()
+    Label(root, text = "").grid(row = 4, column=1)
     show()
 
 def ping():
+    global state_ping
+    state_ping.destroy()
     ip_ping = host_name.get()
-    subprocess.run(f"discover.bat {ip_ping}", wait = True)
+    result = ping_func(ip_ping)
+    time.sleep(1)
+    state_ping = Label(root, text = result)
+    state_ping.grid(row = 4, column=1)
+
     show()
+
     
 def show():
     global ip_discover
@@ -48,6 +63,8 @@ list_box = Listbox(root, width=80, height=20)
 list_box.grid(row = 1, columnspan = 2)
 
 show()
+state_ping = Label(root, text = "")
+state_ping.grid(row = 4, column=1)
 
 Label(root, text = "List of clients:").grid(row = 0, column=0)
 
@@ -64,6 +81,7 @@ Button(button, text = "Ping", command = ping).pack(side=LEFT)
 Button(button, text = "List Clients", command = list_clients).pack(side=LEFT)
 
 button.grid(row = 3, column = 1)
+
 
 
 root.mainloop()

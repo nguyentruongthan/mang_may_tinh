@@ -29,25 +29,11 @@ def get_message_discover(host_name:str) -> str:
     #hostname:<host_name>
     
     return message
-
-if __name__ == "__main__":
-    
+def discover_func(host_name:str):
     #init ip_addr 
     IP_ADDR = socket.gethostbyname(socket.gethostname())
-    
-    
-    #using args for identify lname and fname
-    #TODO
-    if(len(sys.argv) > 2):
-        print("Syntax error: more than 1 argument for discover funcion")
-        exit()
-    host_name = sys.argv[1]
-    
     #connect to local host
     socket_process_server = connect((IP_ADDR, PORT_LOCAL))
-    
-    #send message to process server
-
     #message = method:discover\nhostname:<host_name>
     message = get_message_discover(host_name)
     #send to process client in local computer
@@ -64,7 +50,7 @@ if __name__ == "__main__":
         size -= 1024
     if fnames == "":
         fnames = "Empty"
-    
+   
     print(fnames)
     
     file = open("data\\" + host_name + ".txt", 'w')
@@ -72,6 +58,21 @@ if __name__ == "__main__":
     file.close()
     
     socket_process_server.close()
+    
+
+if __name__ == "__main__":
+    
+    
+    
+    #using args for identify lname and fname
+    #TODO
+    if(len(sys.argv) > 2):
+        print("Syntax error: more than 1 argument for discover funcion")
+        exit()
+    host_name = sys.argv[1]
+    
+    discover_func(host_name)
+   
     
 
     
