@@ -18,6 +18,9 @@ class client:
     def __init__(seft, ip_addr: str):
         
         seft.__ip_server = ip_addr     
+        #connect to serfor for identify server exist
+        seft.__socket_server = seft.connect((seft.__ip_server, PORT_SERVER))
+        seft.__socket_server.close()
         #publish all file in local respostory to server
         list_files = os.listdir("data")
         for file in list_files:
@@ -72,6 +75,9 @@ class client:
             elif method == "fetch":
                 fname = obj_request[1]
                 seft.fetch(socket_local, fname)
+            elif method == "exit":
+                pid = str(os.getpid())
+                socket_local.send(pid.encode())
             else:
                 socket_local.send("ERROR".encode())
     

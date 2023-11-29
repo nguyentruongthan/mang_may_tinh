@@ -12,13 +12,21 @@ def discover():
     global ip_discover
     ip_discover = host_name.get()
     subprocess.run(f"discover.bat {ip_discover}")
-    time.sleep(0.1)
+    time.sleep(0.3)
     show()
 
 
 def list_clients():
+    global ip_discover
     global clients
+    ip_discover = ""
     clients = read()
+    show()
+
+def ping():
+    ip_ping = host_name.get()
+    subprocess.run(f"discover.bat {ip_ping}")
+    time.sleep(0.3)
     show()
     
 def show():
@@ -53,7 +61,7 @@ Entry(root, width=40, textvariable = host_name).grid(row = 2, column = 1)
 
 button = Frame(root)
 Button(button, text = "Discover", command = discover).pack(side=LEFT)
-Button(button, text = "Ping").pack(side=LEFT)
+Button(button, text = "Ping", command = ping).pack(side=LEFT)
 Button(button, text = "List Clients", command = list_clients).pack(side=LEFT)
 
 button.grid(row = 3, column = 1)

@@ -2,6 +2,7 @@ import socket
 import threading
 import os
 import shutil
+import time
 
 PORT_CLIENT = 7777
 PORT_LOCAL = 8888
@@ -28,8 +29,23 @@ class server:
         
         seft.__ip_client_dict = {}
         seft.__lock = threading.Lock()
-        
-        
+    
+    #check client is live every 5s
+    def check_clients_live(seft, is_one_time: int):
+        while 1:
+            ip_clients = list(seft.__ip_client_dict.keys())
+            for ip_client in ip_clients:
+                socket_check_live = socket.socket(socket.AF_NET, socket.SOCK_STREAM)
+                socket_check_live.settimeout(2)
+                try: 
+                    socket_check_live.connect((ip_client, PORT_CLIENT))
+                    socket_check_live.gettimeout()
+                    socket_check_live.close()
+                except socket.timeout:
+                    seft.remove_client(ip_client)
+            if is_one_time == 1:
+                return
+            time.sleep(5)
     #thread always listen connect from client 
     def accepting(seft):
         while 1:
@@ -78,6 +94,9 @@ class server:
         elif method == "list_clients":
             clients = seft.list_clients()
             socket_local.send(clients.encode())
+        elif method == "exit":
+            pid = str(os.getpid())
+            socket_local.send(pid.encode())
         else: 
             socket_local.send("ERROR".encode()) 
                 
@@ -172,17 +191,15 @@ class server:
     
     #return string contain file name of host_name
     def discover(seft, host_name: str) -> str:
+        seft.check_clients_live(1)
         result_str = ""
         #get list of ip_addr of who connected to server
-        ip_client_list = list(seft.__ip_client_dict.keys())
-        
-        for ip_client in ip_client_list:
-            if host_name == ip_client:
-                fname_set = seft.__ip_client_dict[ip_client]
-                for fname in fname_set:
-                    result_str += fname
-                    result_str += "\n"
-                return result_str
+        fname_set = seft.__ip_client_dict.get(host_name)
+        if fname_set != None:
+            for fname in fname_set:
+                result_str += fname
+                result_str += "\n"
+            return result_str
         return "Doesn't exist " + host_name
         
     #add fname to set of file_name of client
@@ -206,21 +223,12 @@ class server:
                 
         return list_addr_client_have_fname
     
-    def check_clients_live(seft):
-        ip_clients = list(seft.__ip_client_dict.keys())
-        for ip_client in ip_clients:
-            socket_check_live = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            try:
-                socket_check_live.settimeout(1)
-                socket_check_live.connect((ip_client, PORT_CLIENT))
-                socket_check_live.close()
-            except socket.timeout:
-                seft.remove_client(ip_client)
+
             
     #if not exist -> send "NO"
     #else -> send string
     def fetch(seft, socket_client: socket.socket, fname: str):
-        seft.check_clients_live()
+        seft.check_clients_live(is_one_time = 1)
         
         list_addr_client_have_fname = seft.find_fname_in_socket_client_dict(fname)
         
@@ -242,13 +250,15 @@ class server:
     def run(seft):
         thread_accept = threading.Thread(target = seft.accepting)
         thread_cmd = threading.Thread(target = seft.cmd)
+        thread_check_live = threading.Thread(targer = seft.check_clients_live, args = (0, ))
         
         thread_accept.start()
         thread_cmd.start()
+        thread_check_live.start()
         
         thread_accept.join()
         thread_cmd.join()
-        
+        thread_check_live.join()
     
     
     

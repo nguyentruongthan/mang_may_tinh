@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import filedialog as fd
 import os
 import subprocess
+import time
 
 path = "data"
 
@@ -20,10 +21,14 @@ def publish():
     local_name = lname.get()
     file_name = fname.get()
     subprocess.run(f"publish.bat {local_name} {file_name}")
+    time.sleep(0.5)
+    show()
 
 def fetch():
     file_name = fname.get()
     subprocess.run(f"fetch.bat {file_name}")
+    time.sleep(0.5)
+    show()
 
 root = Tk()
 root.title("Client")
