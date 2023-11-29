@@ -35,7 +35,9 @@ if __name__ == "__main__":
     #send to process client in local computer
     socket_process_server.send(message.encode())
     #recv list of clients who connected to server from server
+    socket_process_server.settimeout(3)
     clients = socket_process_server.recv(1024).decode()
+    socket_process_server.gettimeout()
     print(clients)
     
     socket_process_server.close()

@@ -12,17 +12,20 @@ PORT_LOCAL = 8888
 
     
 
+#connect to client for send request
 def connect(addr:tuple[str, int]):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.settimeout(3)
         s.connect(addr)
         s.gettimeout()
-        # print(f"Connected to {addr}")
-    except ConnectionRefusedError as cre:
-        print("Host doesn't exist")
-    except TypeError as Type:
-        print("Syntax error")
+        print(f"Connected to {addr}")
+    except ConnectionRefusedError:
+        print(f"Don't exist host {addr}")
+        exit()
+    except socket.timeout:
+        print("Time Out")
+        exit()
     return s
    
 def get_message_fetch(fname:str) -> str:

@@ -12,17 +12,19 @@ PORT_LOCAL = 8888
     
 #connect to client for send request
 def connect(addr:tuple[str, int]):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.settimeout(3)
-        s.connect(addr)
-        s.gettimeout()
-        # print(f"Connected to {addr}")
-    except ConnectionRefusedError as cre:
-        print("Host doesn't exist")
-    except TypeError as Type:
-        print("Syntax error")
-    return s
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.settimeout(3)
+            s.connect(addr)
+            s.gettimeout()
+            print(f"Connected to {addr}")
+        except ConnectionRefusedError:
+            print(f"Don't exist host {addr}")
+            exit()
+        except socket.timeout:
+            print("Time Out")
+            exit()
+        return s
 
 #convert publish request to standard form   
 def get_message_publish(fname:str) -> str:
@@ -63,10 +65,10 @@ if __name__ == "__main__":
         print(f"File {lname} doesn't exist")
         exit()
     #copy lname to client's repository
-    if os.path.exists("data/" + fname):
-        signal = input(f"Do you want to overwrite file {fname} y/n: ")
-        if signal == "n":
-            exit()
+    # if os.path.exists("data/" + fname):
+    #     signal = input(f"Do you want to overwrite file {fname} y/n: ")
+    #     if signal == "n":
+    #         exit()
     
     shutil.copyfile(lname, "data/" + fname)
     #connect to local host

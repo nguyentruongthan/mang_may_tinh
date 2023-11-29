@@ -45,7 +45,7 @@ class server:
                     seft.remove_client(ip_client)
             if is_one_time == 1:
                 return
-            time.sleep(15)
+            time.sleep(5)
     #thread always listen connect from client 
     def accepting(seft):
         while 1:

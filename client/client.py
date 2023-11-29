@@ -97,6 +97,7 @@ class client:
                 socket_client.close()
             else: 
                 seft.handle_request(socket_client, request.decode())
+                socket_client.close()
         
             
     
@@ -152,7 +153,7 @@ class client:
             socket_client.send("OKE".encode())
         else:
             socket_client.send("ERROR".encode()) 
-        socket_client.close()
+        
         
     
     def check_ip_syntax(seft, ip:str) -> bool:
