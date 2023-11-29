@@ -121,7 +121,8 @@ class server:
     def remove_client(seft, ip_client:str):
         print(f"Remove client {ip_client}")
         seft.__lock.acquire()
-        seft.__ip_client_dict.pop(ip_client)
+        if seft.__ip_client_dict.get(ip_client):
+            seft.__ip_client_dict.pop(ip_client)
         seft.__lock.release()
                            
     
