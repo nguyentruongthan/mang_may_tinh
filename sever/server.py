@@ -259,7 +259,8 @@ def find_element_of_set(element, set: set) -> bool:
     
     
 if __name__ == "__main__":
-    os.mkdir('data')
+    if not os.path.exists('data'):
+        os.mkdir('data')
     obj_server = server()
     obj_server.run()
     

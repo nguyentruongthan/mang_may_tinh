@@ -374,7 +374,8 @@ class client:
     
 if __name__ == "__main__":
     ip_server = sys.argv[1]
-    os.mkdir('data')
+    if not os.path.exists('data'):
+        os.mkdir('data')
     obj_client = client(ip_server)
     obj_client.run()
     
