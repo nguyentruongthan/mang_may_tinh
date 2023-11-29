@@ -285,7 +285,7 @@ class client:
         
 
     def fetch(seft, socket_local:socket.socket, fname: str):
-        seft.__socket_server = seft.connect(seft.__ip_server, PORT_SERVER)
+        seft.__socket_server = seft.connect((seft.__ip_server, PORT_SERVER))
         #send message to server and get list of clients who has file <fname>
         #message = method:fetch\nfname:<fname>
         message = seft.message_for_fetch(fname)

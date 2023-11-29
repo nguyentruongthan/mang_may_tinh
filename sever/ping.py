@@ -24,7 +24,9 @@ if __name__ == "__main__":
         #connect to host name
         #host_name is host name of client we want to ping
         socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        socket_client.settimeout(2)
         socket_client.connect((host_name, PORT_CLIENT))
+        socket_client.gettimeout()
         #Get message for ping
         message = get_message_ping(host_name)
         socket_client.send(message.encode())
@@ -33,9 +35,9 @@ if __name__ == "__main__":
             print(f"{host_name} is existing")
         else: print("Loss data response")
         socket_client.close()
-    except TimeoutError:
+    except socket.timeout:
         print("Time out")
-    
+
     
     
     

@@ -59,13 +59,10 @@ if __name__ == "__main__":
     message = get_message_fetch(fname)
     #send to process client in local computer
     socket_process_client.send(message.encode())
-    try:
-        result = socket_process_client.recv(1024).decode()
-        print(result)
-        socket_process_client.close()
-    except socket.timeout: 
-        print("Timeout")
-        exit()
+
+    result = socket_process_client.recv(1024).decode()
+    print(result)
+    socket_process_client.close()
     
     
 
