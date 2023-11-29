@@ -1,5 +1,6 @@
 import socket
 import threading
+import os
 
 PORT_CLIENT = 7777
 PORT_LOCAL = 8888
@@ -35,6 +36,9 @@ class server:
             print(f"Connected from {s.getpeername()[0]}")
             seft.__lock.acquire()
             seft.__socket_client_dict[s] = set()
+            #create file for client
+            file = open("data\\" + s.getpeername()[0] + ".txt", 'w')
+            file.close()
             seft.__lock.release()
             thread_client = threading.Thread(target = seft.handle_client, args = (s,))
             thread_client.start()
@@ -182,6 +186,9 @@ class server:
         
     #add fname to set of file_name of client
     def publish(seft, socket_client: socket.socket, fname: str):
+        file = open('data\\'+socket_client.getpeername()[0] + ".txt", 'a')
+        file.write(fname + "\n")
+        file.close()
         #get set of file_names of client
         file_names = seft.__socket_client_dict[socket_client]
         #add file_name into this set
@@ -255,7 +262,7 @@ def find_element_of_set(element, set: set) -> bool:
     
     
 if __name__ == "__main__":
-    
+    os.mkdir('data')
     obj_server = server()
     obj_server.run()
     
