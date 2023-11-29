@@ -31,11 +31,11 @@ class server:
         seft.__lock = threading.Lock()
     
     #check client is live every 5s
-    def check_clients_live(seft, is_one_time: int):
+    def check_clients_live(seft, is_one_time):
         while 1:
             ip_clients = list(seft.__ip_client_dict.keys())
             for ip_client in ip_clients:
-                socket_check_live = socket.socket(socket.AF_NET, socket.SOCK_STREAM)
+                socket_check_live = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 socket_check_live.settimeout(2)
                 try: 
                     socket_check_live.connect((ip_client, PORT_CLIENT))
@@ -45,7 +45,7 @@ class server:
                     seft.remove_client(ip_client)
             if is_one_time == 1:
                 return
-            time.sleep(5)
+            time.sleep(15)
     #thread always listen connect from client 
     def accepting(seft):
         while 1:
@@ -250,7 +250,7 @@ class server:
     def run(seft):
         thread_accept = threading.Thread(target = seft.accepting)
         thread_cmd = threading.Thread(target = seft.cmd)
-        thread_check_live = threading.Thread(targer = seft.check_clients_live, args = (0, ))
+        thread_check_live = threading.Thread(target = seft.check_clients_live, args = (0, ))
         
         thread_accept.start()
         thread_cmd.start()

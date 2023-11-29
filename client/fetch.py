@@ -44,25 +44,29 @@ if __name__ == "__main__":
     
     #using args for identify lname and fname
     #TODO
-    fname = sys.argv[1]
-    #check file fname is exist in file system
-    if os.path.exists("data\\" + fname):
-        print(f"File {fname} is existing")
-        exit()
-    #connect to local host
-    socket_process_client = connect((IP_ADDR, PORT_LOCAL))
-    
-    #send message to process client
+    number_of_fname = len(sys.argv) - 1
+    if number_of_fname < 1:
+        print("Syntax Error: Less than one argument") 
+    fnames = sys.argv[1:]
+    for fname in fnames:
+        #check file fname is exist in file system
+        if os.path.exists("data\\" + fname):
+            print(f"File {fname} is existing")
+            exit()
+        #connect to local host
+        socket_process_client = connect((IP_ADDR, PORT_LOCAL))
+        
+        #send message to process client
 
-    #method:fetch\n
-    #fname:<fname>
-    message = get_message_fetch(fname)
-    #send to process client in local computer
-    socket_process_client.send(message.encode())
+        #method:fetch\n
+        #fname:<fname>
+        message = get_message_fetch(fname)
+        #send to process client in local computer
+        socket_process_client.send(message.encode())
 
-    result = socket_process_client.recv(1024).decode()
-    print(result)
-    socket_process_client.close()
+        result = socket_process_client.recv(1024).decode()
+        print(result)
+        socket_process_client.close()
     
     
 
