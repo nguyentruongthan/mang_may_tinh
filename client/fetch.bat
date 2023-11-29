@@ -1,2 +1,2 @@
 @echo off
-python fetch.py %1 %2
+python fetch.py %*
