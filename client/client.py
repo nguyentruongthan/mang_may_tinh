@@ -239,11 +239,14 @@ class client:
         
         #recv data 
         file_bytes = b''
-        while size >= 0:
-            data = client.recv(1024)    
+        while size > 0:
+            if size >= 4096:
+                data = client.recv(4096)    
+            else:
+                data = client.recv(size)    
             file_bytes += data
-            size -= 1024
-        print(f"Size of file {file_name} after recv is {len(file_name)}")
+            size -= len(data)
+        print(f"Size of file {file_name} after recv is {len(file_bytes)}")
         
         #open file name which received from client
         file = open("data\\" + file_name, "wb")
