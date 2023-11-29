@@ -85,7 +85,7 @@ class client:
     def accepting(seft):
         while 1:
             s, add = seft.__socket_client.accept()
-            print(f"Connected from {add}")
+            # print(f"Connected from {add}")
             #create new thread for handle new client
             thread_client = threading.Thread(target = seft.handle_client, args = (s, ))
             thread_client.start()

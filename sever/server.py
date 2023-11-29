@@ -35,23 +35,27 @@ class server:
         while 1:
             ip_clients = list(seft.__ip_client_dict.keys())
             for ip_client in ip_clients:
-                socket_check_live = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                socket_check_live.settimeout(2)
-                try: 
-                    socket_check_live.connect((ip_client, PORT_CLIENT))
-                    socket_check_live.gettimeout()
-                    socket_check_live.close()
-                except socket.timeout:
-                    seft.remove_client(ip_client)
+                for i in range(3):
+                    socket_check_live = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    socket_check_live.settimeout(5)
+                    try: 
+                        socket_check_live.connect((ip_client, PORT_CLIENT))
+                        socket_check_live.gettimeout()
+                        socket_check_live.close()
+                        break
+                    except socket.timeout:
+                        seft.remove_client(ip_client)
             if is_one_time == 1:
                 return
-            time.sleep(5)
+            time.sleep(30)
+            
     #thread always listen connect from client 
     def accepting(seft):
         while 1:
             s, _ = seft.__socket_listen.accept()
             ip_addr = s.getpeername()[0]
-            print(f"Connected from {ip_addr}")
+            # print(f"Connected from {ip_addr}")
+            
             seft.__lock.acquire()
             #init new element for dict
             if seft.__ip_client_dict.get(ip_addr) is None:
@@ -106,11 +110,16 @@ class server:
         if not request:
             client.close()
         else:
+            
+            print(f"From {client.getpeername()[0]}:")
+            print(request.decode())
+            print("-----------------------")
             seft.handle_request(client, request.decode())
-                
+            
         
     
     def remove_client(seft, ip_client:str):
+        print(f"Remove client {ip_client}")
         seft.__lock.acquire()
         seft.__ip_client_dict.pop(ip_client)
         seft.__lock.release()
@@ -168,9 +177,7 @@ class server:
         
         if method == "publish":
             ip_client = socket_client.getpeername()[0]
-
             fname = obj_request[1]
-            
             seft.publish(ip_client, fname)
             socket_client.send("OKE".encode())
         elif method == "fetch":

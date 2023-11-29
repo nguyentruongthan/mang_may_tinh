@@ -11,8 +11,8 @@ ip_discover: str = ""
 def discover():
     global ip_discover
     ip_discover = host_name.get()
-    subprocess.run(f"discover.bat {ip_discover}")
-    time.sleep(0.3)
+    subprocess.run(f"discover.bat {ip_discover}", wait = True)
+    
     show()
 
 
@@ -25,8 +25,7 @@ def list_clients():
 
 def ping():
     ip_ping = host_name.get()
-    subprocess.run(f"discover.bat {ip_ping}")
-    time.sleep(0.3)
+    subprocess.run(f"discover.bat {ip_ping}", wait = True)
     show()
     
 def show():
