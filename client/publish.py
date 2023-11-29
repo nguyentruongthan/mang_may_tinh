@@ -4,10 +4,10 @@ import shutil
 import sys
 import ntpath
 
-IP_ADDR: str = ""
+
 
 #port use to connect with client process in this computer
-PORT_LOCAL = 8888
+
 
     
 #connect to client for send request
@@ -45,31 +45,17 @@ def check_lname(lname: str) -> bool:
     #if file not exist
     return is_lname_exist
         
-    
-if __name__ == "__main__":
-    #init ip_addr 
+def publish_func(lname, fname) -> str:
     IP_ADDR = socket.gethostbyname(socket.gethostname())
+    PORT_LOCAL = 8888
     
-    
-    #using args for identify lname and fname
-    #TODO
-    if(len(sys.argv) != 3):
-        print("Syntax error: <lname> <fname>")
-        exit()
-    lname = sys.argv[1]
-    fname = sys.argv[2]
-    
-    lname.replace(os.sep, ntpath.sep)
+    lname = lname.replace(os.sep, ntpath.sep)
     #check fname is exist
     if not check_lname(lname):
-        print(f"File {lname} doesn't exist")
-        exit()
-    #copy lname to client's repository
-    # if os.path.exists("data/" + fname):
-    #     signal = input(f"Do you want to overwrite file {fname} y/n: ")
-    #     if signal == "n":
-    #         exit()
-    
+        result = f"File {lname} doesn't exist"
+        print(result)
+        return result
+    #copy lname to client's repository   
     shutil.copyfile(lname, "data/" + fname)
     #connect to local host
     socket_process_client = connect((IP_ADDR, PORT_LOCAL))
@@ -86,6 +72,21 @@ if __name__ == "__main__":
     socket_process_client.gettimeout()
     print(result)
     socket_process_client.close()
+    return result
+    
+if __name__ == "__main__":
+    
+    #using args for identify lname and fname
+    #TODO
+    if(len(sys.argv) != 3):
+        print("Syntax error: <lname> <fname>")
+        exit()
+    lname = sys.argv[1]
+    fname = sys.argv[2]
+    
+    
+    
+    publish_func(lname, fname)
     
 
     

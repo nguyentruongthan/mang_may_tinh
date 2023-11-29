@@ -2,7 +2,7 @@ import socket
 import sys
 import os
 
-IP_ADDR: str = ""
+
 
 #port use to connect with client process in this computer
 PORT_LOCAL = 8888
@@ -38,22 +38,21 @@ def get_message_fetch(fname:str) -> str:
     #fname:<fname>
     
     return message
-
-if __name__ == "__main__":
-    
-    #init ip_addr 
+def fetch_func(file_names) -> str:
     IP_ADDR = socket.gethostbyname(socket.gethostname())
+    PORT_LOCAL = 8888
+    if len(file_names) < 1:
+        result = "Syntax Error: Less than one argument"
+        print(result)
+        return result
     
-    
-    #using args for identify lname and fname
-    #TODO
-    if len(sys.argv) < 2:
-        print("Syntax Error: Less than one argument") 
+    result_total = ""
     fnames = sys.argv[1:]
     for fname in fnames:
         #check file fname is exist in file system
         if os.path.exists("data\\" + fname):
             print(f"File {fname} is existing")
+            result_total += f"File {fname} is existing\n" 
             continue
         #connect to local host
         socket_process_client = connect((IP_ADDR, PORT_LOCAL))
@@ -68,7 +67,20 @@ if __name__ == "__main__":
 
         result = socket_process_client.recv(1024).decode()
         print(result)
+        result_total += f"{result}\n"
         socket_process_client.close()
+    return result_total
+if __name__ == "__main__":
+    
+    #init ip_addr 
+    IP_ADDR = socket.gethostbyname(socket.gethostname())
+    
+    
+    #using args for identify lname and fname
+    #TODO
+    file_names = sys.argv[1:]
+    fetch_func(file_names)
+    
     
     
 

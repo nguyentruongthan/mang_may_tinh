@@ -3,6 +3,8 @@ from tkinter import filedialog as fd
 import os
 import subprocess
 import time
+from publish import *
+from fetch import *
 
 path = "data"
 
@@ -18,15 +20,30 @@ def mfileopen():
     lname.set(file_path)
     
 def publish():
+    global state
+    state.destroy()
+    
     local_name = lname.get()
     file_name = fname.get()
-    subprocess.run(f"publish.bat {local_name} {file_name}")
+    
+    result = publish_func(local_name, file_name)
+    state = Label(root, text = result)
+    state.grid(row = 5, column=1)
+    
     time.sleep(0.5)
+    
     show()
 
 def fetch():
-    file_name = fname.get()
-    subprocess.run(f"fetch.bat {file_name}")
+    global state
+    state.destroy()
+    
+    file_names = fname.get()
+    result = fetch_func(file_names)
+    
+    state = Label(root, text = result)
+    state.grid(row = 5, column=1)
+    
     time.sleep(0.5)
     show()
 
@@ -49,6 +66,8 @@ Label(root, text = "lname:").grid(row = 2, column=0)
 
 Entry(root, width=40, textvariable = lname).grid(row = 2, column = 1)
 
+state = Label(root, text = "")
+state.grid(row = 5, column=1)
 
 fname = StringVar()
 Label(root, text = "fname:").grid(row = 3, column=0)
@@ -58,6 +77,7 @@ button = Frame(root)
 Button(button, text = "publish", command = publish).pack(side=LEFT)
 Button(button, text = "fetch", command = fetch).pack(side=LEFT)
 button.grid(row = 4, column = 1)
+
 root.mainloop()
 
 
