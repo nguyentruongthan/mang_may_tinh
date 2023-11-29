@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog as fd
 import os
+import subprocess
 
 path = "data"
 
@@ -15,7 +16,14 @@ def mfileopen():
     file_path = fd.askopenfilename()
     lname.set(file_path)
     
-    
+def publish():
+    local_name = lname.get()
+    file_name = fname.get()
+    subprocess.run(f"publish.bat {local_name} {file_name}")
+
+def fetch():
+    file_name = fname.get()
+    subprocess.run(f"fetch.bat {file_name}")
 
 root = Tk()
 root.title("Client")
@@ -42,8 +50,8 @@ Label(root, text = "fname:").grid(row = 3, column=0)
 Entry(root, width=40, textvariable = fname).grid(row = 3, column = 1)
 
 button = Frame(root)
-Button(button, text = "publish").pack(side=LEFT)
-Button(button, text = "fetch").pack(side=LEFT)
+Button(button, text = "publish", command = publish).pack(side=LEFT)
+Button(button, text = "fetch", command = fetch).pack(side=LEFT)
 button.grid(row = 4, column = 1)
 root.mainloop()
 

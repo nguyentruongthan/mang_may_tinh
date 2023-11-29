@@ -13,7 +13,6 @@ def discover():
     ip_discover = host_name.get()
     subprocess.run(f"discover.bat {ip_discover}")
     time.sleep(0.1)
-    # print(ip_discover)
     show()
 
 
