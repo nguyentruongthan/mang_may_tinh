@@ -31,40 +31,41 @@ def get_message_discover(host_name:str) -> str:
     
     return message
 def discover_func(host_name:str) -> str:
-    #init ip_addr 
-    IP_ADDR = socket.gethostbyname(socket.gethostname())
-    #connect to local host
-    socket_process_server = connect((IP_ADDR, PORT_LOCAL))
-    #message = method:discover\nhostname:<host_name>
-    message = get_message_discover(host_name)
-    #send to process client in local computer
-    socket_process_server.send(message.encode())
-    #recv size of filenames from server process
-    size = socket_process_server.recv(1024).decode()
-    size = int(size)
-    if size == 0:
-        return f"Don't exist {host_name}"
-    #send signal to server
-    socket_process_server.send("OKE".encode())
-    #recv fnames from server
-    fnames = ""
-    while size > 0:
-        fnames += socket_process_server.recv(1024).decode()
-        size -= 1024
-    
-    print(fnames)
-    
-    if fnames == "Empty\n":
-        return "Empty"
-    
-    
-    path = f"data\\{host_name}.txt"
-    file = open("data\\" + host_name + ".txt", 'w')
-    file.write(fnames)
-    file.close()
-    
-    socket_process_server.close()
-    return "OKE"
+    try:
+        #init ip_addr 
+        IP_ADDR = socket.gethostbyname(socket.gethostname())
+        #connect to local host
+        socket_process_server = connect((IP_ADDR, PORT_LOCAL))
+        #message = method:discover\nhostname:<host_name>
+        message = get_message_discover(host_name)
+        #send to process client in local computer
+        socket_process_server.send(message.encode())
+        #recv size of filenames from server process
+        size = socket_process_server.recv(1024).decode()
+        size = int(size)
+        if size == 0:
+            return f"Don't exist {host_name}"
+        #send signal to server
+        socket_process_server.send("OKE".encode())
+        #recv fnames from server
+        fnames = ""
+        while size > 0:
+            fnames += socket_process_server.recv(1024).decode()
+            size -= 1024
+        
+        print(fnames)
+        
+        if fnames == "Empty\n":
+            return "Empty"
+        
+        file = open("data\\" + host_name + ".txt", 'w')
+        file.write(fnames)
+        file.close()
+        
+        socket_process_server.close()
+        return "OKE"
+    except:
+        return "Error"
     
 
 if __name__ == "__main__":

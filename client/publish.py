@@ -49,8 +49,7 @@ def publish_func(lname, fname) -> str:
         result = f"File {lname} doesn't exist"
         print(result)
         return result
-    #copy lname to client's repository   
-    shutil.copyfile(lname, "data/" + fname)
+    
     #connect to local host
     socket_process_client = connect((IP_ADDR, PORT_LOCAL))
 
@@ -65,6 +64,9 @@ def publish_func(lname, fname) -> str:
     result = socket_process_client.recv(1024).decode()
     socket_process_client.gettimeout()
     print(result)
+    if result == "OKE":
+        #copy lname to client's repository   
+        shutil.copyfile(lname, "data/" + fname)
     socket_process_client.close()
     return result
     
