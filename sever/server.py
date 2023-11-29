@@ -44,6 +44,7 @@ class server:
                         socket_check_live.close()
                         break
                     except socket.timeout:
+                        os.remove("data\\" + ip_client + ".txt")
                         seft.remove_client(ip_client)
             if is_one_time == 1:
                 return
@@ -87,14 +88,15 @@ class server:
             #send size of fnames
             length_fnames = len(fnames)
             socket_local.send(str(length_fnames).encode())
-            #recv signal from local socket 
-            signal = socket_local.recv(1024).decode()
-            #send fnames to local socket
-            if(signal == "OKE"):
-                socket_local.send(fnames.encode())
-            else:
-                seft.handle_request_error()
-                socket_local.send("ERROR".encode()) 
+            if fnames != "":
+                #recv signal from local socket 
+                signal = socket_local.recv(1024).decode()
+                #send fnames to local socket
+                if(signal == "OKE"):
+                    socket_local.send(fnames.encode())
+                else:
+                    seft.handle_request_error()
+                    socket_local.send("ERROR".encode()) 
         elif method == "list_clients":
             clients = seft.list_clients()
             socket_local.send(clients.encode())
@@ -208,8 +210,10 @@ class server:
             for fname in fname_set:
                 result_str += fname
                 result_str += "\n"
+            if result_str == "":
+                result_str = "Empty\n"
             return result_str
-        return "Doesn't exist " + host_name
+        return ""
         
     #add fname to set of file_name of client
     def publish(seft, ip_client: str, fname: str):

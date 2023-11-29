@@ -16,7 +16,9 @@ def discover():
     global ip_discover
     ip_discover = host_name.get()
     state_ping.destroy()
-    discover_func(ip_discover)
+    result = discover_func(ip_discover)
+    state_ping = Label(root, text = result)
+    state_ping.grid(row = 4, column=1)
     time.sleep(0.5)
     show()
 

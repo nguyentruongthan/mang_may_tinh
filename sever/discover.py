@@ -1,5 +1,6 @@
 import socket
 import sys
+import os
 
 IP_ADDR: str = ""
 
@@ -29,7 +30,7 @@ def get_message_discover(host_name:str) -> str:
     #hostname:<host_name>
     
     return message
-def discover_func(host_name:str):
+def discover_func(host_name:str) -> str:
     #init ip_addr 
     IP_ADDR = socket.gethostbyname(socket.gethostname())
     #connect to local host
@@ -41,6 +42,8 @@ def discover_func(host_name:str):
     #recv size of filenames from server process
     size = socket_process_server.recv(1024).decode()
     size = int(size)
+    if size == 0:
+        return f"Don't exist {host_name}"
     #send signal to server
     socket_process_server.send("OKE".encode())
     #recv fnames from server
@@ -48,16 +51,20 @@ def discover_func(host_name:str):
     while size > 0:
         fnames += socket_process_server.recv(1024).decode()
         size -= 1024
-    if fnames == "":
-        fnames = "Empty"
-   
+    
     print(fnames)
     
+    if fnames == "Empty\n":
+        return "Empty"
+    
+    
+    path = f"data\\{host_name}.txt"
     file = open("data\\" + host_name + ".txt", 'w')
     file.write(fnames)
     file.close()
     
     socket_process_server.close()
+    return "OKE"
     
 
 if __name__ == "__main__":
