@@ -11,8 +11,8 @@ PORT_SERVER = 9999
 class server:
     #socket use to listen client
     __socket_listen: socket.socket
-    #dict contain socket of client and its file name 
-    #when client publish file name to server
+    #dict struct with key is ip_addr of client
+    #and value is set of file name whom client has
     __ip_client_dict: dict[str, set[str]]
     
     __socket_local: socket.socket
@@ -30,14 +30,15 @@ class server:
         seft.__ip_client_dict = {}
         seft.__lock = threading.Lock()
     
-    #check client is live every 5s
+    #check client is live every 30s
     def check_clients_live(seft, is_one_time):
         while 1:
             ip_clients = list(seft.__ip_client_dict.keys())
             for ip_client in ip_clients:
+                #we check three times
                 for i in range(3):
                     socket_check_live = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    socket_check_live.settimeout(5)
+                    socket_check_live.settimeout(3)
                     try: 
                         socket_check_live.connect((ip_client, PORT_CLIENT))
                         socket_check_live.gettimeout()
@@ -70,7 +71,7 @@ class server:
             thread_client = threading.Thread(target = seft.handle_client, args = (s,))
             thread_client.start()
     
-    def cmd(seft):
+    def cmd(seft):  
         while 1:
             socket_local, _ = seft.__socket_local.accept()
             seft.handle_cmd(socket_local)
@@ -81,8 +82,6 @@ class server:
         method = obj_request[0]
         
         if method == "discover":
-            #socket_client is socket local which is created from cmd
-            #when we call discover from cmd
             host_name = obj_request[1]
             fnames = seft.discover(host_name)
             #send size of fnames
@@ -113,9 +112,9 @@ class server:
             client.close()
         else:
             
-            print(f"From {client.getpeername()[0]}:")
-            print(request.decode())
-            print("-----------------------")
+            # print(f"From {client.getpeername()[0]}:")
+            # print(request.decode())
+            # print("-----------------------")
             seft.handle_request(client, request.decode())
             
         
@@ -217,11 +216,9 @@ class server:
         
     #add fname to set of file_name of client
     def publish(seft, ip_client: str, fname: str):
-        #get set of file_names of client
-        seft.__ip_client_dict[ip_client].add(fname)
         #add file_name into this set
-        # file_names.add(fname)
-        
+        seft.__ip_client_dict[ip_client].add(fname)
+                
     #return set of addr (ip_addr, port_number) of sockets which have file fname
     def find_fname_in_socket_client_dict(seft, fname: str) -> list[str]:
         #set of socket client 
@@ -238,8 +235,8 @@ class server:
     
 
             
-    #if not exist -> send "NO"
-    #else -> send string
+    #if not exist any client has file <fname> -> send "NO"
+    #else -> send string of client who has file <fname>
     def fetch(seft, socket_client: socket.socket, fname: str):
         seft.check_clients_live(is_one_time = 1)
         

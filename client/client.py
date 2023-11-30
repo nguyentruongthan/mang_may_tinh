@@ -11,9 +11,9 @@ class client:
     
     __ip_server: str
     #socket server
-    __socket_server: socket.socket
-    __socket_client: socket.socket
-    __socket_local: socket.socket
+    __socket_server: socket.socket #socket use to connect to server
+    __socket_client: socket.socket #socket use to listen from other client
+    __socket_local: socket.socket  #socket use to listen from local socket
     
     def __init__(seft, ip_addr: str):
         
@@ -47,44 +47,43 @@ class client:
             #accept connect from cmd
             socket_local, _ = seft.__socket_local.accept()
             seft.handle_cmd(socket_local)
-            #if finish handle request
-            #-> close connect 
+            #if finish handle request -> close connect 
             socket_local.close()
             
     def handle_cmd(seft, socket_local: socket.socket):
-        while 1:
-            message = socket_local.recv(1024)
-            #if disconnect -> close socket_local
-            if not message:
-                break
-            #if socket_local doesn't send request 
-            #-> continue for socket_local send request
-            if len(message) == 0: continue
-            message = message.decode()
+        
+        message = socket_local.recv(1024)
+        #if disconnect -> close socket_local
+        if not message:
+            return
+        
+        message = message.decode()
 
-            obj_request = seft.split_message(message)
-            method = obj_request[0]
-            
-            if method == "publish":
-                fname = obj_request[1]
-                result = seft.publish(fname)
-                if result == 1:
-                    socket_local.send("OKE".encode())
-                else:
-                    socket_local.send("ERROR".encode())
-            elif method == "fetch":
-                fname = obj_request[1]
-                seft.fetch(socket_local, fname)
-            elif method == "exit":
-                pid = str(os.getpid())
-                socket_local.send(pid.encode())
+        #split message to <method> and <fname>
+        obj_request = seft.split_message(message)
+        method = obj_request[0]
+        
+        if method == "publish":
+            fname = obj_request[1]
+            result = seft.publish(fname)
+            if result == 1:
+                socket_local.send("OKE".encode())
             else:
                 socket_local.send("ERROR".encode())
+        elif method == "fetch":
+            fname = obj_request[1]
+            seft.fetch(socket_local, fname)
+        elif method == "exit":
+            #exit this client process
+            pid = str(os.getpid())
+            socket_local.send(pid.encode())
+        else:
+            socket_local.send("ERROR".encode())
     
     #thread always listen connect from client 
     def accepting(seft):
         while 1:
-            s, add = seft.__socket_client.accept()
+            s, addr = seft.__socket_client.accept()
             # print(f"Connected from {add}")
             #create new thread for handle new client
             thread_client = threading.Thread(target = seft.handle_client, args = (s, ))
@@ -141,8 +140,7 @@ class client:
                 
     def handle_request(seft, socket_client:socket.socket, message:str):
         if len(message) == 0: return
-        #messaeg (str): method:<method>\n 
-        #               ...............
+        #messaeg (str): method:<method>\n......
         obj_request = seft.split_message(message)
         method = obj_request[0]
         
@@ -197,65 +195,59 @@ class client:
     
         
     def send_file(seft, socket_client:socket.socket, file_name:str):
-        print(f"Send {file_name} to {socket_client.getpeername()[0]}")
         #open file
         file = open("data\\" + file_name, "rb")
         
         #read file
         data = file.read()
         
-        size = str(len(data))
-        
         #send size of file to client
+        size = str(len(data))
         socket_client.send(size.encode())
+        
         #wait for recv "OKE" from another client
         signal = socket_client.recv(1024).decode()
-        print(f"Recv signal: {signal}")
+    
         if signal == "OKE":
-            print("Start send file ...")
             #send data of file to server
             size = len(data)
             count:int = 0
+            #we send many times with each time we send 4096 bytes
+            #we decrease size by 4096 once we send and stop when size <= 0
             while size > 0:
                 if size < 4096:
                     socket_client.send(data[4096*count:])
                 else:
                     socket_client.send(data[4096*count: 4096*(count + 1)])
                 count += 1
-                size -= 4096
-            socket_client.sendall(data)
-            print(f"Complete send {file_name} to {socket_client.getpeername()[0]}")
-        
+                size -= 4096        
         file.close()
     
-    def recv_file(seft, client:socket.socket, file_name:str):
-        #we will recv and write to file continuous 
-        #we stop until size of file less or equal to 0
-        
+    def recv_file(seft, socket_client:socket.socket, file_name:str):
         #recv size of file
-        size = int(client.recv(1024).decode())
-        print(f"Size of file {file_name} is {size}")
-        client.send("OKE".encode())
-        
-        #recv data 
+        size = int(socket_client.recv(1024).decode())
+        #send response to client who send file for synchronized
+        socket_client.send("OKE".encode())
+        #We recv data many time with each time we recv 4096 bytes
+        #we decrease size by 4096 once we recv and stop when size <= 0
         file_bytes = b''
         while size > 0:
             if size >= 4096:
-                data = client.recv(4096)    
+                data = socket_client.recv(4096)    
             else:
-                data = client.recv(size)    
+                data = socket_client.recv(size)    
             file_bytes += data
             size -= len(data)
-        print(f"Size of file {file_name} after recv is {len(file_bytes)}")
-        
+            
+                
         #open file name which received from client
         file = open("data\\" + file_name, "wb")
-        print(f"Open file {file_name}")
-        
-        file.write(file_bytes)    
-        print(f"Recv file {file_name} completed")
+        file.write(file_bytes)  
         file.close()
-        client.close()
+          
+        print(f"Recv file {file_name} completed")
+        
+        socket_client.close()
     
     def message_for_fetch(seft, fname) -> bytes:
         message = ""
@@ -266,50 +258,18 @@ class client:
         #METHOD:fetch
         #fname:<fname>
         return message
-    
-    #return list of client which has file
-    def recv_list_clients_for_fetch(seft) -> list[str]:
-        
-        message = seft.__socket_server.recv(1024).decode()
-        
-        if message == "NO":
-            return []
-        
-        return message.split("\n")
         
     def choose_client_for_fetch(seft, list_clients:list[str]) -> str:
         #we can choose client with another way
         #TODO
-        
         return list_clients[0]
-        
-    def fetch_to_client(seft, socket_client_fetch:socket.socket, fname:str):
-        message = seft.message_for_fetch(fname)
-        #message = 
-        #METHOD:fetch
-        #fname:<fname>
-        socket_client_fetch.send(message.encode())
-        
-        #receive file from client who has file <fname>
-        seft.recv_file(socket_client_fetch, fname)
-        
-    
-    def fetch_to_server(seft, fname:str) -> list[str]:
-        #send fname to server for recv list of client who has fname
-        message = seft.message_for_fetch(fname)
-
-        seft.__socket_server.send(message.encode())
-        
-        
-        #recv list of client who has fname
-        list_clients = seft.recv_list_clients_for_fetch()
-        
-        return list_clients
         
 
     def fetch(seft, socket_local:socket.socket, fname: str):
+        #connect to server
         seft.__socket_server = seft.connect((seft.__ip_server, PORT_SERVER))
         #send message to server and get list of clients who has file <fname>
+        
         #message = method:fetch\nfname:<fname>
         message = seft.message_for_fetch(fname)
         #send message to server
@@ -319,6 +279,7 @@ class client:
         if str_clients == "NO":
             socket_local.send(f"Network don't have file {fname}".encode())
             return 
+        
         #convert str_clients to list_clients
         list_clients = str_clients.split("\n")        
         #choose client for fetch file from it
@@ -335,6 +296,7 @@ class client:
         
         #recv file from this client
         #send message to client
+        #message = method:fetch\nfname:<fname>
         client_fetch.send(message.encode())
         
         #receive file from client who has file <fname>
@@ -390,7 +352,6 @@ class client:
             if result == "OKE":
                 seft.__socket_server.close()
                 return 1
-                
         except socket.timeout:
             print("Publish method didn't receive response from server!")
             seft.__socket_server.close()

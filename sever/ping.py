@@ -42,9 +42,6 @@ def ping_func(host_name) -> str:
     return result
 
 if __name__ == "__main__":
-    
-    #using args for identify host_name
-    #TODO
     if(len(sys.argv) > 2):
         print("Syntax error: more than 1 argument for discover funcion")
         exit()

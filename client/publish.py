@@ -55,8 +55,7 @@ def publish_func(lname, fname) -> str:
 
     #send message to process client
 
-    #method:publish\n
-    #fname:<fname>
+    #method:publish\nfname:<fname>
     message_str = get_message_publish(fname)
     #send to process client in local computer
     socket_process_client.send(message_str.encode())
@@ -71,9 +70,6 @@ def publish_func(lname, fname) -> str:
     return result
     
 if __name__ == "__main__":
-    
-    #using args for identify lname and fname
-    #TODO
     if(len(sys.argv) != 3):
         print("Syntax error: <lname> <fname>")
         exit()

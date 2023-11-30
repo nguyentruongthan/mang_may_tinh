@@ -38,6 +38,7 @@ def fetch_func(file_names) -> str:
         print(result)
         return result
     
+    
     result_total = ""
     for fname in file_names:
         #check file fname is exist in file system
@@ -50,8 +51,7 @@ def fetch_func(file_names) -> str:
         
         #send message to process client
 
-        #method:fetch\n
-        #fname:<fname>
+        #method:fetch\nfname:<fname>    
         message = get_message_fetch(fname)
         #send to process client in local computer
         socket_process_client.send(message.encode())

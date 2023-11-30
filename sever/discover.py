@@ -69,11 +69,6 @@ def discover_func(host_name:str) -> str:
     
 
 if __name__ == "__main__":
-    
-    
-    
-    #using args for identify lname and fname
-    #TODO
     if(len(sys.argv) > 2):
         print("Syntax error: more than 1 argument for discover funcion")
         exit()
