@@ -45,8 +45,9 @@ class server:
                         socket_check_live.close()
                         break
                     except socket.timeout:
-                        os.remove("data\\" + ip_client + ".txt")
-                        seft.remove_client(ip_client)
+                        if i == 2:
+                            os.remove("data\\" + ip_client + ".txt")
+                            seft.remove_client(ip_client)
             if is_one_time == 1:
                 return
             time.sleep(30)
